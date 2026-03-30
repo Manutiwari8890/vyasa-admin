@@ -1,4 +1,4 @@
-import { useTheme } from "../Context/themeContext";
+import { useTheme } from "../Context/ThemeContext";
 
 export default function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
