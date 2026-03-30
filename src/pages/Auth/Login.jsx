@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, replace, useNavigate } from "react-router-dom";
 import ThemeToggle from "../../Component/ThemeToogle";
 import { stringify } from "postcss";
 
@@ -12,7 +12,7 @@ function Login() {
     })
     const [message, setMessage] = useState({type : false, value : ""});
     const [loading, setLoading] = useState(false);
-
+    const navigate = useNavigate();
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
     const handleSubmit = async (e) => {
@@ -47,7 +47,10 @@ function Login() {
                     }
                 }
                 setMessage({type : result?.status, value : msg});
-                console.log(result);
+                if(result?.status){
+                    localStorage.setItem("access_token", result?.data?.access_token)
+                    navigate('/', replace);
+                }
             }catch(err){
                 console.log(err)
             }
