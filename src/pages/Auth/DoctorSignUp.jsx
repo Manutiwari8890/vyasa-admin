@@ -4,7 +4,7 @@ import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/themes/material_blue.css";
 
 const initial = {
-    title: "", first_name: "", middle_name: "", last_name: "", phone: "", email: "", password : "", password_confirmation : "", dob: new Date().toISOString().split("T")[0], role : 3, specility: "", smcRegistration: "", designation: "", country: "", state: "", city: "", pincode: "", address1: "", registration_certificate: ""
+    title: "", first_name: "", middle_name: "", last_name: "", phone: "", email: "", password : "", password_confirmation : "", dob: new Date().toISOString().split("T")[0], role_id : 3, specility: "", smcRegistration: "", designation: "", country: "", state: "", city: "", pincode: "", address1: "", registration_certificate: ""
 }
 
 const reducer = (prev, e) => {
@@ -28,6 +28,8 @@ function DoctorSignUp() {
     const [errors, setErrors] = useState()
     const [isDragging, setIsDragging] = useState(false);
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
+    const [passShow, setPassShow] = useState([false, false]);
+    
     const handleDrop = (e) => {
         e.preventDefault();
         setIsDragging(false);
@@ -125,15 +127,12 @@ function DoctorSignUp() {
         if (!values.first_name) {
             error.first_name = "First name is required !"
         }
-        if (!values?.middle_name) {
-            error.middle_name = "Middle name is required !"
-        }
         if (!values?.last_name) {
             error.last_name = "Last name is required !"
         }
         if (!values?.phone) {
             error.phone = "Phone number is required !"
-        }else if(values?.phone.length < 10){
+        }else if(values?.phone.length == 10){
             error.phone = "Please enter valid phone!"
         }
         if (!values?.email) {
@@ -143,9 +142,10 @@ function DoctorSignUp() {
         }
         if (!values?.password) {
             error.password = "Password is required !"
+        }else if(values?.password.length < 8){
+            error.password = "Password should be minimum 8 characters"
         }
         if (!values?.password_confirmation) {
-            console
             error.password_confirmation = "Confirm Password is required !"
         }else if(values?.password !== values?.password_confirmation){
             error.password_confirmation = "Confirm Password does not match !"
@@ -226,12 +226,11 @@ function DoctorSignUp() {
                                         <div className="form-group col-span-4 lg:col-span-3">
                                             <label htmlFor="mname" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Middle Name</label>
                                             <div className="relative mt-1">
-                                                <input type="text" name="middle_name" className={`peer text-sm w-full pr-4 py-3 pl-10 border-1 ${errors?.middle_name ? "border-red-600" : "border-gray-300"} rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} placeholder="Enter your middle name" id="mname" value={data?.middle_name} onChange={(e) => dispatch(e)} />
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="21" height="19" viewBox="0 0 21 19" fill="none" className={`${errors?.middle_name ? "text-red-600" : "text-gray-300"} absolute top-1/2 left-3 -translate-y-1/2 peer-focus:text-teal dark:text-gray-600`}>
+                                                <input type="text" name="middle_name" className={`peer text-sm w-full pr-4 py-3 pl-10 border-1 border-gray-300 rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} placeholder="Enter your middle name" id="mname" value={data?.middle_name} onChange={(e) => dispatch(e)} />
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="21" height="19" viewBox="0 0 21 19" fill="none" className={`text-gray-300 absolute top-1/2 left-3 -translate-y-1/2 peer-focus:text-teal dark:text-gray-600`}>
                                                     <path fillRule="evenodd" clipRule="evenodd" d="M8.0254 6.17845C8.0254 4.90629 9.05669 3.875 10.3289 3.875C11.601 3.875 12.6323 4.90629 12.6323 6.17845C12.6323 7.45061 11.601 8.48191 10.3289 8.48191C9.05669 8.48191 8.0254 7.45061 8.0254 6.17845ZM10.3289 2.375C8.22827 2.375 6.5254 4.07786 6.5254 6.17845C6.5254 8.27904 8.22827 9.98191 10.3289 9.98191C12.4294 9.98191 14.1323 8.27904 14.1323 6.17845C14.1323 4.07786 12.4294 2.375 10.3289 2.375ZM8.92286 11.03C5.7669 11.03 3.2085 13.5884 3.2085 16.7444V17.0333C3.2085 17.4475 3.54428 17.7833 3.9585 17.7833C4.37271 17.7833 4.7085 17.4475 4.7085 17.0333V16.7444C4.7085 14.4169 6.59533 12.53 8.92286 12.53H11.736C14.0635 12.53 15.9504 14.4169 15.9504 16.7444V17.0333C15.9504 17.4475 16.2861 17.7833 16.7004 17.7833C17.1146 17.7833 17.4504 17.4475 17.4504 17.0333V16.7444C17.4504 13.5884 14.8919 11.03 11.736 11.03H8.92286Z" fill="currentColor"></path>
                                                 </svg>
                                             </div>
-                                            {errors?.middle_name && <p className="text-xs text-red-600 mt-1">{errors?.middle_name}</p>}
                                         </div>
                                         <div className="form-group col-span-4 lg:col-span-3">
                                             <label htmlFor="lname" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Last Name</label>
@@ -293,20 +292,44 @@ function DoctorSignUp() {
                                         <div className="form-group">
                                             <label htmlFor="password" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Password</label>
                                             <div className="relative mt-1">
-                                                <input type="password" name="password" className={`peer text-sm w-full pr-4 py-3 pl-10 border-1 ${errors?.password ? "border-red-600" : "border-gray-300"} rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} placeholder="************" id="password" value={data?.password} onChange={(e) => dispatch(e)} />
+                                                <input type={`${passShow[0] ? "text" : "password"}`} name="password" className={`peer text-sm w-full pr-4 py-3 pl-10 border-1 ${errors?.password ? "border-red-600" : "border-gray-300"} rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} placeholder="************" id="password" value={data?.password} onChange={(e) => dispatch(e)} />
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="17" height="20" viewBox="0 0 17 20" fill="none" className={`${errors?.password ? "text-red-600" : "text-gray-300"} absolute top-1/2 left-3 -translate-y-1/2 peer-focus:text-teal dark:text-gray-600`}>
                                                     <path d="M12.8702 7.54742V5.5445C12.8702 3.20014 10.969 1.29891 8.62465 1.29891C6.28029 1.28865 4.37159 3.18055 4.36133 5.52584V5.5445V7.54742" stroke="currentColor" strokeWidth="1.52655" strokeLinecap="round" strokeLinejoin="round"></path><path fillRule="evenodd" clipRule="evenodd" d="M12.1794 18.5572H5.0512C3.09772 18.5572 1.51367 16.9741 1.51367 15.0197V11.0185C1.51367 9.06411 3.09772 7.48099 5.0512 7.48099H12.1794C14.1329 7.48099 15.717 9.06411 15.717 11.0185V15.0197C15.717 16.9741 14.1329 18.5572 12.1794 18.5572Z" stroke="currentColor" strokeWidth="1.52655" strokeLinecap="round" strokeLinejoin="round"></path><path d="M8.61586 11.9832V14.0552" stroke="currentColor" strokeWidth="1.52655" strokeLinecap="round" strokeLinejoin="round"></path>
                                                 </svg>
+                                                <span className="p-2 absolute top-1/2 -translate-y-1/2 right-2 text-gray-400 cursor-pointer" onClick={() => setPassShow(prev => {
+                                                    const updated = prev;
+                                                    updated[0] = !prev[0]
+
+                                                    return [...updated]
+                                                })}>
+                                                    {
+                                                        passShow[0] ?
+                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-4 h-4 mx-auto"><g id="_01_align_center" data-name="01 align center"><path d="M23.821,11.181v0C22.943,9.261,19.5,3,12,3S1.057,9.261.179,11.181a1.969,1.969,0,0,0,0,1.64C1.057,14.739,4.5,21,12,21s10.943-6.261,11.821-8.181A1.968,1.968,0,0,0,23.821,11.181ZM12,19c-6.307,0-9.25-5.366-10-6.989C2.75,10.366,5.693,5,12,5c6.292,0,9.236,5.343,10,7C21.236,13.657,18.292,19,12,19Z" fill="currentColor" /><path d="M12,7a5,5,0,1,0,5,5A5.006,5.006,0,0,0,12,7Zm0,8a3,3,0,1,1,3-3A3,3,0,0,1,12,15Z" fill="currentColor" /></g></svg> :
+                                                            <svg xmlns="http://www.w3.org/2000/svg" id="Outline" viewBox="0 0 24 24" className="w-4 h-4 mx-auto"><path d="M23.271,9.419A15.866,15.866,0,0,0,19.9,5.51l2.8-2.8a1,1,0,0,0-1.414-1.414L18.241,4.345A12.054,12.054,0,0,0,12,2.655C5.809,2.655,2.281,6.893.729,9.419a4.908,4.908,0,0,0,0,5.162A15.866,15.866,0,0,0,4.1,18.49l-2.8,2.8a1,1,0,1,0,1.414,1.414l3.052-3.052A12.054,12.054,0,0,0,12,21.345c6.191,0,9.719-4.238,11.271-6.764A4.908,4.908,0,0,0,23.271,9.419ZM2.433,13.534a2.918,2.918,0,0,1,0-3.068C3.767,8.3,6.782,4.655,12,4.655A10.1,10.1,0,0,1,16.766,5.82L14.753,7.833a4.992,4.992,0,0,0-6.92,6.92l-2.31,2.31A13.723,13.723,0,0,1,2.433,13.534ZM15,12a3,3,0,0,1-3,3,2.951,2.951,0,0,1-1.285-.3L14.7,10.715A2.951,2.951,0,0,1,15,12ZM9,12a3,3,0,0,1,3-3,2.951,2.951,0,0,1,1.285.3L9.3,13.285A2.951,2.951,0,0,1,9,12Zm12.567,1.534C20.233,15.7,17.218,19.345,12,19.345A10.1,10.1,0,0,1,7.234,18.18l2.013-2.013a4.992,4.992,0,0,0,6.92-6.92l2.31-2.31a13.723,13.723,0,0,1,3.09,3.529A2.918,2.918,0,0,1,21.567,13.534Z" fill="currentColor" /></svg> 
+                                                    }
+                                                </span>
                                             </div>
                                             {errors?.password && <p className="text-xs text-red-600 mt-1">{errors?.password}</p>}
                                         </div>
                                         <div className="form-group">
                                             <label htmlFor="password_confirmation" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Confirm Password</label>
                                             <div className="relative mt-1">
-                                                <input type="password" name="password_confirmation" className={`peer text-sm w-full pr-4 py-3 pl-10 border-1 ${errors?.password_confirmation ? "border-red-600" : "border-gray-300"} rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} placeholder="************" id="password_confirmation" value={data?.password_confirmation} onChange={(e) => dispatch(e)} />
+                                                <input type={`${passShow[1] ? "text" : "password"}`} name="password_confirmation" className={`peer text-sm w-full pr-4 py-3 pl-10 border-1 ${errors?.password_confirmation ? "border-red-600" : "border-gray-300"} rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} placeholder="************" id="password_confirmation" value={data?.password_confirmation} onChange={(e) => dispatch(e)} />
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="17" height="20" viewBox="0 0 17 20" fill="none" className={`${errors?.password_confirmation ? "text-red-600" : "text-gray-300"} absolute top-1/2 left-3 -translate-y-1/2 peer-focus:text-teal dark:text-gray-600`}>
                                                     <path d="M12.8702 7.54742V5.5445C12.8702 3.20014 10.969 1.29891 8.62465 1.29891C6.28029 1.28865 4.37159 3.18055 4.36133 5.52584V5.5445V7.54742" stroke="currentColor" strokeWidth="1.52655" strokeLinecap="round" strokeLinejoin="round"></path><path fillRule="evenodd" clipRule="evenodd" d="M12.1794 18.5572H5.0512C3.09772 18.5572 1.51367 16.9741 1.51367 15.0197V11.0185C1.51367 9.06411 3.09772 7.48099 5.0512 7.48099H12.1794C14.1329 7.48099 15.717 9.06411 15.717 11.0185V15.0197C15.717 16.9741 14.1329 18.5572 12.1794 18.5572Z" stroke="currentColor" strokeWidth="1.52655" strokeLinecap="round" strokeLinejoin="round"></path><path d="M8.61586 11.9832V14.0552" stroke="currentColor" strokeWidth="1.52655" strokeLinecap="round" strokeLinejoin="round"></path>
                                                 </svg>
+                                                <span className="p-2 absolute top-1/2 -translate-y-1/2 right-2 text-gray-400 cursor-pointer" onClick={() => setPassShow(prev => {
+                                                    const updated = prev;
+                                                    updated[1] = !prev[1]
+
+                                                    return [...updated]
+                                                })}>
+                                                    {
+                                                        passShow[1] ?
+                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-4 h-4 mx-auto"><g id="_01_align_center" data-name="01 align center"><path d="M23.821,11.181v0C22.943,9.261,19.5,3,12,3S1.057,9.261.179,11.181a1.969,1.969,0,0,0,0,1.64C1.057,14.739,4.5,21,12,21s10.943-6.261,11.821-8.181A1.968,1.968,0,0,0,23.821,11.181ZM12,19c-6.307,0-9.25-5.366-10-6.989C2.75,10.366,5.693,5,12,5c6.292,0,9.236,5.343,10,7C21.236,13.657,18.292,19,12,19Z" fill="currentColor" /><path d="M12,7a5,5,0,1,0,5,5A5.006,5.006,0,0,0,12,7Zm0,8a3,3,0,1,1,3-3A3,3,0,0,1,12,15Z" fill="currentColor" /></g></svg> :
+                                                            <svg xmlns="http://www.w3.org/2000/svg" id="Outline" viewBox="0 0 24 24" className="w-4 h-4 mx-auto"><path d="M23.271,9.419A15.866,15.866,0,0,0,19.9,5.51l2.8-2.8a1,1,0,0,0-1.414-1.414L18.241,4.345A12.054,12.054,0,0,0,12,2.655C5.809,2.655,2.281,6.893.729,9.419a4.908,4.908,0,0,0,0,5.162A15.866,15.866,0,0,0,4.1,18.49l-2.8,2.8a1,1,0,1,0,1.414,1.414l3.052-3.052A12.054,12.054,0,0,0,12,21.345c6.191,0,9.719-4.238,11.271-6.764A4.908,4.908,0,0,0,23.271,9.419ZM2.433,13.534a2.918,2.918,0,0,1,0-3.068C3.767,8.3,6.782,4.655,12,4.655A10.1,10.1,0,0,1,16.766,5.82L14.753,7.833a4.992,4.992,0,0,0-6.92,6.92l-2.31,2.31A13.723,13.723,0,0,1,2.433,13.534ZM15,12a3,3,0,0,1-3,3,2.951,2.951,0,0,1-1.285-.3L14.7,10.715A2.951,2.951,0,0,1,15,12ZM9,12a3,3,0,0,1,3-3,2.951,2.951,0,0,1,1.285.3L9.3,13.285A2.951,2.951,0,0,1,9,12Zm12.567,1.534C20.233,15.7,17.218,19.345,12,19.345A10.1,10.1,0,0,1,7.234,18.18l2.013-2.013a4.992,4.992,0,0,0,6.92-6.92l2.31-2.31a13.723,13.723,0,0,1,3.09,3.529A2.918,2.918,0,0,1,21.567,13.534Z" fill="currentColor" /></svg> 
+                                                    }
+                                                </span>
                                             </div>
                                             {errors?.password_confirmation && <p className="text-xs text-red-600 mt-1">{errors?.password_confirmation}</p>}
                                         </div>

@@ -1,10 +1,33 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 function Profile(){
     const [editProfile, setEditProfile] = useState(false);
     const [editAddress, setEditAddress] = useState(false);
     const [passShow, setPassShow] = useState([false, false, false]);
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
+    const [userDetail, setUserDetail] = useState(null);
+
+    useEffect(() => {
+        const getUserDetail = async () => {
+            try{
+                const response = await fetch(`${baseUrl}user`, {
+                    method : "GET",
+                    headers: {  "Authorization" : `Bearer ${sessionStorage.getItem("token")}`,  "Content-Type": "application/json"},
+                });
+                if(!response.ok){
+                    throw new Error("User Fetch Failed");
+                }
+
+                const result = await response.json()
+                setUserDetail(result?.data)
+            }catch(err){
+                console.log(err)
+            }
+        }
+
+        getUserDetail()
+    }, [])
 
     return (
         <>
@@ -32,8 +55,8 @@ function Profile(){
                             <img src="/assets/images/user.jpg" alt="" className="w-full h-full rounded-full object-cover" />
                         </div>
                         <div className="text-left">
-                            <h4 className="text-xl font-semibold text-gray-700 mb-2">Manu Tiwari</h4>
-                            <p className="text-base text-gray-500 flex gap-2"><span>Team Manager</span> <span>|</span> <span>Jaipur, INDIA</span></p>
+                            <h4 className="text-xl font-semibold text-gray-700 mb-2">{userDetail?.detail?.first_name} {userDetail?.detail?.last_name}</h4>
+                            <p className="text-base text-gray-500 flex gap-2"><span>Doctor </span> <span>|</span> <span>{userDetail?.detail?.city}, {userDetail?.detail?.country}</span></p>
                         </div>
                     </div>
                     <div className="flex gap-3 items-center">
@@ -53,19 +76,19 @@ function Profile(){
                             <div className="w-full grid grid-cols-2 gap-x-2 gap-y-6">
                                 <div>
                                     <h6 className="text-xs text-gray-500 mb-1">First Name</h6>
-                                    <p className="text-base text-gray-900">Musharof</p>                                    
+                                    <p className="text-base text-gray-900">{userDetail?.detail?.first_name}</p>                                    
                                 </div>
                                 <div>
                                     <h6 className="text-xs text-gray-500 mb-1">Last Name</h6>
-                                    <p className="text-base text-gray-900">Chowdhury</p>                                    
+                                    <p className="text-base text-gray-900">{userDetail?.detail?.last_name}</p>                                    
                                 </div>
                                 <div>
                                     <h6 className="text-xs text-gray-500 mb-1">Email address</h6>
-                                    <p className="text-base text-gray-900">randomuser@pimjo.com</p>                                    
+                                    <p className="text-base text-gray-900">{userDetail?.detail?.email}</p>                                    
                                 </div>
                                 <div>
                                     <h6 className="text-xs text-gray-500 mb-1">Phone</h6>
-                                    <p className="text-base text-gray-900">+09 363 398 46</p>                                    
+                                    <p className="text-base text-gray-900">{userDetail?.detail?.phone}</p>                                    
                                 </div>
                                 <div>
                                     <h6 className="text-xs text-gray-500 mb-1">Bio</h6>

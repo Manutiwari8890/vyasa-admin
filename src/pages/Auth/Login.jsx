@@ -25,7 +25,7 @@ function Login() {
             setLoading(true);
             const result = await login(data)
             setLoading(false)
-            setMessage({ type: result?.status, value: result?.msg });
+            setMessage({ type: result?.status, value: result?.value });
             if (result?.status) {
                 navigate('/', replace);
             }
@@ -94,7 +94,7 @@ function Login() {
                                                 <div className="relative h-[20px]">
                                                     <input type="checkbox" id="remember" className="w-5 h-5 appearance-none cursor-pointer border border-gray-300 checked:border-transparent rounded-md dark:border-gray-600 checked:bg-teal disabled:opacity-60 " onChange={() => setRemember(prev => !prev)} />
                                                     {remember &&
-                                                        <svg class="absolute transform -translate-x-1/2 -translate-y-1/2 pointer-events-none top-1/2 left-1/2" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M11.6666 3.5L5.24992 9.91667L2.33325 7" stroke="white" strokeWidth="1.94437" strokeLinecap="round" strokeLinejoin="round"></path></svg>
+                                                        <svg className="absolute transform -translate-x-1/2 -translate-y-1/2 pointer-events-none top-1/2 left-1/2" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M11.6666 3.5L5.24992 9.91667L2.33325 7" stroke="white" strokeWidth="1.94437" strokeLinecap="round" strokeLinejoin="round"></path></svg>
                                                     }
                                                 </div>
                                                 <p className="text-sm text-gray-700 dark:text-gray-300">Keep me logged in</p>

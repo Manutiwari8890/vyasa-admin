@@ -1,10 +1,11 @@
-import { createContext, useState } from "react";
+import { createContext, useState, useCallback } from "react";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({children}) => {
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
-    const [user, setUser] = useState(localStorage.getItem("access_token"))
+    const [token, setToken] = useState(sessionStorage.getItem("token"))
+    const [user, setUser] = useState();
 
     const login = async (data) => {
         try {
@@ -13,7 +14,7 @@ export const AuthProvider = ({children}) => {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(data)
+                body: JSON.stringify(data),
             })
 
             if (!response.ok) {
@@ -31,8 +32,9 @@ export const AuthProvider = ({children}) => {
                 }
             }
             if (result?.status) {
-                localStorage.setItem("access_token", result?.data?.access_token)
-                setUser(result?.data?.access_token)
+                sessionStorage.setItem("token", result?.data?.access_token)
+                setToken(result?.data?.access_token)
+                const user = await getUser();
             }
             return {status : result?.status, value : msg}
         } catch (err) {
@@ -40,14 +42,32 @@ export const AuthProvider = ({children}) => {
         }
     }
 
+    const getUser = useCallback(async () => {
+        try{
+            const response = await fetch(`${baseUrl}user/role`, {
+                method : "GET",
+                headers: {  "Authorization" : `Bearer ${sessionStorage.getItem("token")}`,  "Content-Type": "application/json"},
+            })
+
+            if(!response.ok){
+                throw new Error("Role fetch failed");
+            }
+
+            const result = await response.json();
+            setUser(result?.data)
+        }catch(err){
+            console.log(err)
+        }
+    }, [])
+
     const logout = () => {
-        localStorage.removeItem("access_token")
-        setUser("");
+        sessionStorage.removeItem("token")
+        setToken("");
     }
 
     return(
         <AuthContext.Provider
-            value={{user, logout, login}}
+            value={{user, token, logout, login, getUser}}
         >
             {children}
         </AuthContext.Provider>

@@ -7,7 +7,7 @@ function Header({sideOpen, setSideOpen, setIsHoverOpen, isOpen}){
     const location = useLocation();
     const profileRef = useRef(null)
     const [profileView, setProfileView] = useState(false);
-    const {logout} = useContext(AuthContext); 
+    const {logout, user} = useContext(AuthContext); 
 
     useEffect(() => {
         function handleClickOutSide(e){
@@ -73,14 +73,14 @@ function Header({sideOpen, setSideOpen, setIsHoverOpen, isOpen}){
                                 <span className="user rounded-full w-11 h-11 overflow-hidden text-center content-center">
                                     <img src="/assets/images/user.jpg" alt="" className="w-ful h-full object-cover rounded-full duration-200" />
                                 </span>
-                                <p className="text-base text-gray-800 dark:text-gray-300">Manu Tiwari</p>
+                                <p className="text-base text-gray-800 dark:text-gray-300">{user?.name}</p>
                                 <svg className={`stroke-gray-500 transition-transform duration-200 dark:text-gray-300 ${profileView && "-rotate-180"}`} width="18" height="20" viewBox="0 0 18 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.3125 8.65625L9 13.3437L13.6875 8.65625" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path></svg>
                             </button>
                             {profileView &&
                                 <div className="bg-white border border-gray-200 shadow-xs min-w-[260px] h-max p-3 rounded-2xl absolute right-0 z-100 mt-[15px] dark:bg-[#1a2231] dark:border-gray-800">
                                     <div>
-                                        <p className="text-sm font-medium text-gray-700 dark:text-gray-400">Manu Tiwar</p>
-                                        <span className="text-xs font-medium text-gray-500 dark:text-gray-400">tiwarimanu871@gmail.com</span>
+                                        <p className="text-sm font-medium text-gray-700 dark:text-gray-400">{user?.name}</p>
+                                        <span className="text-xs font-medium text-gray-500 dark:text-gray-400">{user?.email}</span>
                                     </div>
                                     <ul className="flex flex-col gap-1 py-2 border-b border-gray-300 dark:border-gray-800">
                                         <li>

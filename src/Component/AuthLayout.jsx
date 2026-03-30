@@ -4,11 +4,11 @@ import { AuthContext } from "../Context/AuthContext";
 
 
 export default function AuthLayout() {
-  const { user } = useContext(AuthContext)
-  if(user){
+  const token = sessionStorage.getItem("token")
+  if(token){
     return <Navigate to="/" replace={true} />
   }
-
+  
   return (
     <Outlet />
   );
