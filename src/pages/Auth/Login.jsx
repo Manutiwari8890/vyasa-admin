@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Link, replace, useNavigate } from "react-router-dom";
 import ThemeToggle from "../../Component/ThemeToogle";
 import { stringify } from "postcss";
+import { AuthContext } from "../../Context/AuthContext";
 
 function Login() {
+    const {login} = useContext(AuthContext);
     const [remember, setRemember] = useState(false);
     const [passShow, setPassShow] = useState(false);
     const [error, setError] = useState({});
@@ -13,46 +15,19 @@ function Login() {
     const [message, setMessage] = useState({type : false, value : ""});
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-    const baseUrl = import.meta.env.VITE_API_BASE_URL;
-
+    
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
         const errors = validate(data)
         setError(errors)
         if(Object.entries(errors)?.length<1){
             setLoading(true);
-            try{
-                const response = await fetch(`${baseUrl}login`, {
-                    method : "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body : JSON.stringify(data)
-                })
-
-                if(!response.ok){
-                    throw new Error("Login Failed !")
-                }
-
-                const result = await response.json();
-                setLoading(false);
-                let msg = '';
-                if (typeof result.message === "string") {
-                    msg = result.message;
-                }
-                else if (typeof result.message === "object" && result.message !== null) {
-                    const firstErrorKey = Object.keys(result.message)[0];
-                    if (firstErrorKey) {
-                        msg = result?.message[firstErrorKey][0];
-                    }
-                }
-                setMessage({type : result?.status, value : msg});
-                if(result?.status){
-                    localStorage.setItem("access_token", result?.data?.access_token)
-                    navigate('/', replace);
-                }
-            }catch(err){
-                console.log(err)
+            const result = await login(data)
+            setLoading(false)
+            setMessage({ type: result?.status, value: result?.msg });
+            if (result?.status) {
+                navigate('/', replace);
             }
         }
 
