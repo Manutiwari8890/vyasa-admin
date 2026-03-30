@@ -1,5 +1,6 @@
 import { lazy } from "react";
 import { Routes, Route} from "react-router-dom";
+import ProtectedRoute from "./Component/ProtectedRoute";
 
 const AuthLayout = lazy(() => import('./Component/AuthLayout'));
 const DashboardLayout = lazy(() => import('./Component/DashboardLayout'));
@@ -33,15 +34,18 @@ function App(){
           <Route path="/forgot-password" element={<Forgot />} />
           <Route path="/reset-password" element={<Reset />} />
         </Route>
-        <Route element={<DashboardLayout />}>
-          <Route index element={<Index />} />
-          <Route path="calender" element={<Calender />} />
-          <Route path="forms" element={<Forms />} />
-          <Route path="basic-tables" element={<Tables />} />
-          <Route path="form-layout" element={<FormLayout />} />
-          <Route path="chat" element={<Chat />} />
-          <Route path="profile" element={<Profile />} />
+        <Route element={<ProtectedRoute />}>
+          <Route element={<DashboardLayout />}>
+            <Route index element={<Index />} />
+            <Route path="calender" element={<Calender />} />
+            <Route path="forms" element={<Forms />} />
+            <Route path="basic-tables" element={<Tables />} />
+            <Route path="form-layout" element={<FormLayout />} />
+            <Route path="chat" element={<Chat />} />
+            <Route path="profile" element={<Profile />} />
+          </Route>
         </Route>
+        
         <Route path="*" element={<Error />} />
       </Routes>
     </>

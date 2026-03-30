@@ -1,4 +1,4 @@
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet} from "react-router-dom";
 import { lazy, useEffect, useState } from "react";
 const Sidebar = lazy(() => import('./Sidebar'));
 const Header = lazy(() => import('./Header'));
@@ -9,7 +9,6 @@ export default function DashboardLayout() {
   const [sideOpen, setSideOpen] = useState(true);
   const [isHoverOpen, setIsHoverOpen] = useState(false);
   const isOpen = sideOpen || isHoverOpen;
-  const location = useLocation();
 
   useEffect(() => {
       document.querySelector("main").scrollTo({

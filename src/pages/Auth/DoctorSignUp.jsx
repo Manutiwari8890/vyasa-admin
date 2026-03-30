@@ -4,7 +4,7 @@ import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/themes/material_blue.css";
 
 const initial = {
-    title: "", first_name: "", middle_name: "", last_name: "", phone: "", email: "", password : "", password_confirmation : "", dob: new Date(), role : 3, specility: "", smcRegistration: "", designation: "", country: "", state: "", city: "", pincode: "", address1: "", registration_certificate: ""
+    title: "", first_name: "", middle_name: "", last_name: "", phone: "", email: "", password : "", password_confirmation : "", dob: new Date().toISOString().split("T")[0], role : 3, specility: "", smcRegistration: "", designation: "", country: "", state: "", city: "", pincode: "", address1: "", registration_certificate: ""
 }
 
 const reducer = (prev, e) => {
@@ -121,6 +121,9 @@ function DoctorSignUp() {
 
     const validate = (values) => {
         const error = {};
+        console.log(values)
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i
+
         if (!values.first_name) {
             error.first_name = "First name is required !"
         }
@@ -132,9 +135,13 @@ function DoctorSignUp() {
         }
         if (!values?.phone) {
             error.phone = "Phone number is required !"
+        }else if(values?.phone.length < 10){
+            error.phone = "Please enter valid phone!"
         }
         if (!values?.email) {
             error.email = "Email is required !"
+        }else if (!regex.test(values.email)) {
+            errors.email = "Email is not valid"
         }
         if (!values?.password) {
             error.password = "Password is required !"
@@ -266,7 +273,7 @@ function DoctorSignUp() {
                                                     value={data?.dob}
                                                     name="dob"
                                                     id="dob"
-                                                    onChange={([selectedDate]) => dispatch({ target: { name: "dob", value: selectedDate } })}
+                                                    onChange={([selectedDate]) => dispatch({ target: { name: "dob", value: selectedDate.toISOString().split("T")[0] } })}
                                                     options={{
                                                         dateFormat: "Y-m-d",
                                                         monthSelectorType: "static",
@@ -449,7 +456,7 @@ function DoctorSignUp() {
                                             })()}
                                         </div>
                                     </div>
-                                    <button className={`text-center px-10 py-3 flex items-center gap-0 bg-teal w-max text-white rounded-xl mt-4 ${loading ? "opacity-90 cursor-not-allowed" : "cursor-pointer hover:bg-teal-dark"}`} disabled={loading}>
+                                    <button className={`text-center px-10 py-3 flex items-center gap-0 bg-teal w-max text-white rounded-xl mt-4 ${loading ? "opacity-80 cursor-not-allowed" : "cursor-pointer hover:bg-teal-dark"}`} disabled={loading}>
                                         {loading ? 
                                             <>
                                                 <svg aria-hidden="true" role="status" className="w-4 h-4 me-2 text-white animate-spin" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
