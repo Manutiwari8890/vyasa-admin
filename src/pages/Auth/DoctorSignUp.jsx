@@ -132,7 +132,7 @@ function DoctorSignUp() {
         }
         if (!values?.phone) {
             error.phone = "Phone number is required !"
-        }else if(values?.phone.length == 10){
+        }else if(values?.phone.length != 10){
             error.phone = "Please enter valid phone!"
         }
         if (!values?.email) {
