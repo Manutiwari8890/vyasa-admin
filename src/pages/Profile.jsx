@@ -298,7 +298,7 @@ function Profile() {
 
     const [degreeSearch, setDegreeSearch] = useState("");
     const [degreeOpen, setDegreeOpen] = useState(false);
-    const [degrees, setDegrees] = useState(["MBBS", "BAHS", "DRNB", "BDS", "HDS", "DNB", "NCH", "MD", "NS"]);
+    const [degrees, setDegrees] = useState(["MBBS", "BAHS", "DrNB", "BDS", "MDS", "DNB", "MCH", "MS", "DM"]);
     const filteredDegree = degrees.filter(d =>
         d.toLowerCase().includes(degreeSearch.toLowerCase())
     );
