@@ -44,7 +44,9 @@ function DoctorSignUp() {
                     }
                 }
                 setMessage({type : result?.status, value : msg})
-                setData({first_name : "", last_name : "", email : "", phone : "", password : "", confirm_password : ""})
+                if(result?.status){
+                    setData({first_name : "", last_name : "", email : "", phone : "", password : "", confirm_password : ""})
+                }
                 setLoading(false)
             } catch (err) {
                 console.log(err)
