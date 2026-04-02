@@ -28,7 +28,7 @@ function App(){
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />
           <Route path="verify-email" element={<Verify />} />
-          <Route path="/signup/doctor" element={<DoctorSignUp />} />
+          <Route path="/signup/:role" element={<DoctorSignUp />} />
           <Route path="/signup" element={<Register />} />
           <Route path="/two-step-verification" element={<Otp />} />
           <Route path="/forgot-password" element={<Forgot />} />

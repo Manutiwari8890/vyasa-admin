@@ -2,10 +2,11 @@ import { useEffect, useState, useReducer, useRef } from "react";
 import { Link } from "react-router-dom";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/themes/material_blue.css";
+import { CountrySelect } from "../Component/CountrySelect";
 
 
 const initial = {
-    title: "", first_name: "", middle_name: "", last_name: "", phone: "", email : "", dob: new Date().toISOString().split("T")[0], specility: "", smcRegistration: "", designation: "", country: "", state: "", city: "", pincode: "", address1: "", registration_certificate: "", image_url : ""
+    title: "", first_name: "", middle_name: "", last_name: "", gender: "male", phone: "", whatsapp_number: "" , email : "", official_email: "", nationality : "", language:[], dob: new Date().toISOString().split("T")[0], degree: "", specility: "", smcRegistration: "", designation: "", country: "", state: "", city: "", pincode: "", address1: "", registration_certificate: "", image_url : "", practice : "solo", experience : "", interest : [], confirm : false
 }
 
 const reducer = (prev, e) => {
@@ -172,6 +173,7 @@ function Profile() {
 
     const validate = (values) => {
         const error = {};
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i
 
         if (!values.first_name) {
             error.first_name = "First name is required !"
@@ -184,8 +186,18 @@ function Profile() {
         } else if (values?.phone.length == 10) {
             error.phone = "Please enter valid phone!"
         }
+        if (!values?.whatsapp_number) {
+            error.whatsapp_number = "Whatsapp number is required !"
+        } else if (values?.whatsapp_number.length == 10) {
+            error.whatsapp_number = "Please enter valid whatsapp!"
+        }
         if (!values?.dob) {
             error.dob = "DOB is required !"
+        }
+        if (!values?.official_email) {
+            error.official_email = "Email is required !"
+        }else if(regex.test(values?.official_email)){
+            errors.official_email = "Email is not valid"
         }
         if (!values?.specility) {
             error.specility = "Specility is required !"
@@ -214,6 +226,7 @@ function Profile() {
         if (!values?.registration_certificate) {
             error.registration_certificate = "Registration certificate is required !"
         }
+        console.log(values)
         return error
     }
 
@@ -274,6 +287,51 @@ function Profile() {
         return error
     }
 
+    const handleCountry = (field, value) => {
+        dispatch({target: {name : field, value : value}})
+    }
+    const handleLanguage = (e) => {
+        const updated = data?.language?.includes(e.target.value) ? data?.language.filter((item) => item!==e.target.value) : [...data?.language, e.target.value]
+        console.log(updated)
+        dispatch({ target: { name: "language", value: updated } })
+    }
+
+    const [degreeSearch, setDegreeSearch] = useState("");
+    const [degreeOpen, setDegreeOpen] = useState(false);
+    const [degrees, setDegrees] = useState(["MBBS", "BAHS", "DRNB", "BDS", "HDS", "DNB", "NCH", "MD", "NS"]);
+    const filteredDegree = degrees.filter(d =>
+        d.toLowerCase().includes(degreeSearch.toLowerCase())
+    );
+    const handleDegree = (degree) => {
+        let updated = data?.degree;
+        if(degree?.type){
+            updated = [...data?.degree, degree?.value]
+            setDegrees(prev => {
+                const up = prev.filter((p) => p!==degree?.value)
+                return up
+            })
+        }else{
+            updated = data?.degree.filter(avl => avl!==degree?.value)
+            setDegrees(prev => [...prev, degree.value])
+        }
+        setDegreeSearch("")
+        dispatch({target : {name : 'degree', value : updated}})
+    }
+
+    const [interestSearch, setInterestSearch] = useState("");
+    const handleInterest = (int) => {
+        let updated = data?.interest;
+        if(int?.type){
+            updated = [...data?.interest, int?.value]
+        }else{
+            updated = data?.interest.filter(avl => avl!==int?.value)
+        }
+        setInterestSearch("")
+        dispatch({target : {name : 'interest', value : updated}})
+    }
+
+
+
     return (
         <>
             <div className="flex justify-between items-center mb-6">
@@ -297,7 +355,7 @@ function Profile() {
                 <div className="p-5 bg-white border border-gray-200 rounded-2xl flex items-center justify-between mb-6">
                     <div className="flex gap-5 items-center">
                         <div className="w-30 h-30 rounded-full overflow-hidden">
-                            <img src={`${data?.image_url ? data?.image_url : ""}`} alt="" className="w-full h-full rounded-full object-cover" />
+                            <img src={data?.image_url ? data?.image_url : null} alt="" className="w-full h-full rounded-full object-cover" />
                         </div>
                         <div className="text-left">
                             <h4 className="text-xl font-semibold text-gray-700 mb-2">{data?.first_name} {data?.last_name}</h4>
@@ -321,7 +379,7 @@ function Profile() {
                                 <h4 className="text-2xl text-gray-700 font-semibold mb-1 lg:mb-6">Personl Information</h4>
                             </div>
                             <div className="form-group">
-                                <label htmlFor="select" className="text-gray-700 text-sm font-medium dark:text-gray-400">Title</label>
+                                <label htmlFor="select" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Title</label>
                                 <div className="relative mt-1">
                                     <select id="select" name="title" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" value={data?.title} onChange={(e) => dispatch(e)}>
                                         <option value="dr">Dr.</option>
@@ -362,26 +420,7 @@ function Profile() {
                         </div>
                         <div className="grid grid-cols-1 gap-x-4 gap-y-6 mb-4 lg:grid-cols-3">
                             <div className="form-group">
-                                <label htmlFor="phone" className="text-gray-700 text-sm font-medium dark:text-gray-400">Phone Number</label>
-                                <div className="relative mt-1">
-                                    <input type="tel" name="phone" className={`peer text-sm w-full pr-3 py-3 pl-10 border-1 ${errors?.phone ? "border-red-600" : "border-gray-300"} rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} id="phone" placeholder="Enter your phone number" value={data?.phone} readOnly={true} />
-                                    <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24" width="21" height="19" className={`${errors?.phone ? "text-red-600" : "text-gray-300"} absolute top-1/2 left-3 -translate-y-1/2 peer-focus:text-teal dark:text-gray-600`}><path d="M13,1a1,1,0,0,1,1-1A10.011,10.011,0,0,1,24,10a1,1,0,0,1-2,0,8.009,8.009,0,0,0-8-8A1,1,0,0,1,13,1Zm1,5a4,4,0,0,1,4,4,1,1,0,0,0,2,0,6.006,6.006,0,0,0-6-6,1,1,0,0,0,0,2Zm9.093,10.739a3.1,3.1,0,0,1,0,4.378l-.91,1.049c-8.19,7.841-28.12-12.084-20.4-20.3l1.15-1A3.081,3.081,0,0,1,7.26.906c.031.031,1.884,2.438,1.884,2.438a3.1,3.1,0,0,1-.007,4.282L7.979,9.082a12.781,12.781,0,0,0,6.931,6.945l1.465-1.165a3.1,3.1,0,0,1,4.281-.006S23.062,16.708,23.093,16.739Zm-1.376,1.454s-2.393-1.841-2.424-1.872a1.1,1.1,0,0,0-1.549,0c-.027.028-2.044,1.635-2.044,1.635a1,1,0,0,1-.979.152A15.009,15.009,0,0,1,5.9,9.3a1,1,0,0,1,.145-1S7.652,6.282,7.679,6.256a1.1,1.1,0,0,0,0-1.549c-.031-.03-1.872-2.425-1.872-2.425a1.1,1.1,0,0,0-1.51.039l-1.15,1C-2.495,10.105,14.776,26.418,20.721,20.8l.911-1.05A1.121,1.121,0,0,0,21.717,18.193Z" fill="currentColor" /></svg>
-                                </div>
-                                {errors?.phone && <p className="text-xs text-red-600 mt-1">{errors?.phone}</p>}
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="email" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Email</label>
-                                <div className="relative mt-1">
-                                    <input type="email" name="email" className={`peer text-sm w-full pr-4 py-3 pl-10 border-1 ${errors?.email ? "border-red-600" : "border-gray-300"} rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} placeholder="info@gmail.com" id="email" value={data?.email} readOnly={true} />
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="21" height="19" viewBox="0 0 21 19" fill="none" className={`${errors?.email ? "text-red-600" : "text-gray-300"} absolute top-1/2 left-3 -translate-y-1/2 peer-focus:text-teal dark:text-gray-600`}>
-                                        <path d="M15.6578 6.85916L11.6786 10.063C10.9255 10.6534 9.86992 10.6534 9.11687 10.063L5.10352 6.85916" stroke="currentColor" strokeWidth="1.52655" strokeLinecap="round" strokeLinejoin="round"></path>
-                                        <path fillRule="evenodd" clipRule="evenodd" d="M5.9749 1.67123H14.7701C16.0383 1.68545 17.2453 2.22157 18.1101 3.15471C18.9749 4.08786 19.4219 5.33659 19.3471 6.61007V12.6999C19.4219 13.9734 18.9749 15.2221 18.1101 16.1552C17.2453 17.0884 16.0383 17.6245 14.7701 17.6387H5.9749C3.25094 17.6387 1.41504 15.4227 1.41504 12.6999V6.61007C1.41504 3.88726 3.25094 1.67123 5.9749 1.67123Z" stroke="currentColor" strokeWidth="1.52655" strokeLinecap="round" strokeLinejoin="round"></path>
-                                    </svg>
-                                </div>
-                                {errors?.email && <p className="text-xs text-red-600 mt-1">{errors?.email}</p>}
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="dob" className="text-gray-700 text-sm font-medium dark:text-gray-400">Date of birth</label>
+                                <label htmlFor="dob" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Date of birth</label>
                                 <div className="relative mt-1" ref={wrapperRef}>
                                     <Flatpickr
                                         value={data?.dob}
@@ -396,7 +435,7 @@ function Profile() {
                                         })
                                         }
                                         options={{
-                                            dateFormat: "Y-m-d",
+                                            dateFormat: "d-m-Y",
                                             monthSelectorType: "static",
                                             disableMobile: true,
                                             onReady: (_, __, fp) => {
@@ -414,38 +453,107 @@ function Profile() {
                                 {errors?.dob && <p className="text-xs text-red-600 mt-1">{errors?.dob}</p>}
                             </div>
                             <div className="form-group">
-                                <label htmlFor="specility" className="text-gray-700 text-sm font-medium dark:text-gray-400">Specility</label>
-                                <div className="relative mt-1">
-                                    <select id="specility" name="specility" className={`text-sm w-full p-3 pr-8 border-1 ${errors?.specility ? "border-red-600" : "border-gray-300"} rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} value={data?.specility} onChange={(e) => dispatch(e)}>
-                                        <option value="">Select</option>
-                                        <option value="medicine">Medicine</option>
-                                        <option value="surgen">Surgen</option>
-                                    </select>
-                                    <svg className="absolute text-gray-700 dark:text-gray-400 right-3 top-1/2 -translate-y-1/2 pointer-events-none" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.79175 8.02075L10.0001 13.2291L15.2084 8.02075" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path></svg>
+                                <label htmlFor="gender" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Gender</label>
+                                <div className="flex gap-3 mt-3">
+                                    <label htmlFor="male" className="flex items-center gap-2 text-base text-gray-700 cursor-pointer">
+                                        Male
+                                        <span className="relative content-center -mb-2">
+                                            <input type="radio" className="sr-only" name="gender" value="male" id="male" checked={data?.gender==="male"} onChange={(e) => dispatch(e)} />
+                                            <span className={`w-5 h-5 border border-gray-300 rounded-full flex justify-center items-center -mt-2 ${data?.gender==="male" ? "bg-teal" : ""}`}>
+                                                <span className="bg-white w-2 h-2 rounded-full inline-block"></span>
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <label htmlFor="female" className="flex items-center gap-2 text-base text-gray-700 cursor-pointer">
+                                        Female
+                                        <span className="relative content-center -mb-2">
+                                            <input type="radio" className="sr-only" name="gender" value="female" id="female" checked={data?.gender==="female"} onChange={(e) => dispatch(e)} />
+                                            <span className={`w-5 h-5 border border-gray-300 rounded-full flex justify-center items-center -mt-2 ${data?.gender==="female" ? "bg-teal" : ""}`}>
+                                                <span className="bg-white w-2 h-2 rounded-full inline-block"></span>
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <label htmlFor="other" className="flex items-center gap-2 text-base text-gray-700 cursor-pointer">
+                                        Other
+                                        <span className="relative content-center -mb-2">
+                                            <input type="radio" className="sr-only" name="gender" value="other" id="other" checked={data?.gender==="other"} onChange={(e) => dispatch(e)} />
+                                            <span className={`w-5 h-5 border border-gray-300 rounded-full flex justify-center items-center -mt-2 ${data?.gender==="other" ? "bg-teal" : ""}`}>
+                                                <span className="bg-white w-2 h-2 rounded-full inline-block"></span>
+                                            </span>
+                                        </span>
+                                    </label>
                                 </div>
-                                {errors?.specility && <p className="text-xs text-red-600 mt-1">{errors?.specility}</p>}
                             </div>
                             <div className="form-group">
-                                <label htmlFor="smcRegistration" className="text-gray-700 text-sm font-medium dark:text-gray-400">SMC/MCI Registration Number</label>
-                                <div className="relative mt-1">
-                                    <input type="number" name="smcRegistration" className={`peer text-sm w-full pr-3 py-3 pl-10 border-1 ${errors?.smcRegistration ? "border-red-600" : "border-gray-300"} rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} id="smcRegistration" placeholder="SMC/MCI Registration Number" value={data?.smcRegistration} onChange={(e) => dispatch(e)} />
-                                    <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" viewBox="0 0 24 24" data-name="Layer 1" width="21" height="19" className={`${errors?.smcRegistration ? "text-red-600" : "text-gray-300"} absolute top-1/2 left-3 -translate-y-1/2 peer-focus:text-teal dark:text-gray-600`}><path d="m5 9.5c0-1.381 1.119-2.5 2.5-2.5s2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5-2.5-1.119-2.5-2.5zm19 7.5v-10c0-2.757-2.243-5-5-5h-14c-2.757 0-5 2.243-5 5v10c0 2.757 2.243 5 5 5h14c2.757 0 5-2.243 5-5zm-5-13c1.654 0 3 1.346 3 3v10c0 1.654-1.346 3-3 3h-14c-1.654 0-3-1.346-3-3v-10c0-1.654 1.346-3 3-3zm1 4c0-.552-.447-1-1-1h-5c-.553 0-1 .448-1 1s.447 1 1 1h5c.553 0 1-.448 1-1zm0 4c0-.552-.447-1-1-1h-5c-.553 0-1 .448-1 1s.447 1 1 1h5c.553 0 1-.448 1-1zm-2 4c0-.553-.447-1-1-1h-3c-.553 0-1 .447-1 1s.447 1 1 1h3c.553 0 1-.447 1-1zm-7.797.979c.541-.112.889-.642.776-1.183-.335-1.62-1.799-2.797-3.479-2.797s-3.144 1.177-3.479 2.797c-.112.541.235 1.07.776 1.183.538.107 1.07-.236 1.182-.776.145-.697.784-1.203 1.521-1.203s1.376.506 1.521 1.203c.109.544.654.889 1.182.776z" fill="currentColor" /></svg>
-                                </div>
-                                {errors?.smcRegistration && <p className="text-xs text-red-600 mt-1">{errors?.smcRegistration}</p>}
+                                <label htmlFor="nationality" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Nationality</label>
+                                <CountrySelect name="nationality" value={data?.nationality} onChange={(value) => handleCountry("nationality", value)} />
                             </div>
                             <div className="form-group">
-                                <label htmlFor="designation" className="text-gray-700 text-sm font-medium dark:text-gray-400">Designation</label>
-                                <div className="relative mt-1">
-                                    <input type="text" name="designation" className={`peer text-sm w-full pr-3 py-3 pl-10 border-1 ${errors?.designation ? "border-red-600" : "border-gray-300"} rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} id="designation" placeholder="Designation" value={data?.designation} onChange={(e) => dispatch(e)} />
-                                    <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" viewBox="0 0 24 24" data-name="Layer 1" width="21" height="19" className={`${errors?.designation ? "text-red-600" : "text-gray-300"} absolute top-1/2 left-3 -translate-y-1/2 peer-focus:text-teal dark:text-gray-600`}><path d="m24 9.5a3.5 3.5 0 1 0 -5 3.149v3.351a5 5 0 0 1 -10 0v-.151a7.513 7.513 0 0 0 6-7.349v-3a5.506 5.506 0 0 0 -5.5-5.5 1.5 1.5 0 0 0 0 3 2.5 2.5 0 0 1 2.5 2.5v3a4.5 4.5 0 0 1 -9 0v-3a2.5 2.5 0 0 1 2.5-2.5 1.5 1.5 0 0 0 0-3 5.506 5.506 0 0 0 -5.5 5.5v3a7.513 7.513 0 0 0 6 7.349v.151a8 8 0 0 0 16 0v-3.351a3.5 3.5 0 0 0 2-3.149z" fill="currentColor" /></svg>
+                                <label htmlFor="language" className="text-gray-700 text-sm font-semibold dark:text-gray-400 inline-block mb-3">Language Spoken</label>
+                                <div className="flex gap-3">
+                                    <label htmlFor="hindi" className="flex items-center gap-2">
+                                        <div className="relative h-[20px]">
+                                            <input type="checkbox" id="hindi" value="hindi" className="w-5 h-5 appearance-none cursor-pointer border border-gray-300 checked:border-transparent rounded-md dark:border-gray-600 checked:bg-teal disabled:opacity-60 " onChange={(e) => handleLanguage(e)} />
+                                            {data?.language.includes("hindi") &&
+                                                <svg className="absolute transform -translate-x-1/2 -translate-y-1/2 pointer-events-none top-1/2 left-1/2" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M11.6666 3.5L5.24992 9.91667L2.33325 7" stroke="white" strokeWidth="1.94437" strokeLinecap="round" strokeLinejoin="round"></path></svg>
+                                            }
+                                        </div>
+                                        <p className="text-sm text-gray-700 dark:text-gray-300">Hindi</p>
+                                    </label>
+                                    <label htmlFor="english" className="flex items-center gap-2">
+                                        <div className="relative h-[20px]">
+                                            <input type="checkbox" id="english" value="english" className="w-5 h-5 appearance-none cursor-pointer border border-gray-300 checked:border-transparent rounded-md dark:border-gray-600 checked:bg-teal disabled:opacity-60 " onChange={(e) => handleLanguage(e)} />
+                                            {data?.language.includes("english") &&
+                                                <svg className="absolute transform -translate-x-1/2 -translate-y-1/2 pointer-events-none top-1/2 left-1/2" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M11.6666 3.5L5.24992 9.91667L2.33325 7" stroke="white" strokeWidth="1.94437" strokeLinecap="round" strokeLinejoin="round"></path></svg>
+                                            }
+                                        </div>
+                                        <p className="text-sm text-gray-700 dark:text-gray-300">English</p>
+                                    </label>
                                 </div>
-                                {errors?.designation && <p className="text-xs text-red-600 mt-1">{errors?.designation}</p>}
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="phone" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Phone Number</label>
+                                <div className="relative mt-1">
+                                    <input type="tel" name="phone" className={`peer text-sm w-full pr-3 py-3 pl-10 border-1 ${errors?.phone ? "border-red-600" : "border-gray-300"} rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} id="phone" placeholder="Enter your phone number" value={data?.phone} readOnly={true} />
+                                    <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24" width="21" height="19" className={`${errors?.phone ? "text-red-600" : "text-gray-300"} absolute top-1/2 left-3 -translate-y-1/2 peer-focus:text-teal dark:text-gray-600`}><path d="M13,1a1,1,0,0,1,1-1A10.011,10.011,0,0,1,24,10a1,1,0,0,1-2,0,8.009,8.009,0,0,0-8-8A1,1,0,0,1,13,1Zm1,5a4,4,0,0,1,4,4,1,1,0,0,0,2,0,6.006,6.006,0,0,0-6-6,1,1,0,0,0,0,2Zm9.093,10.739a3.1,3.1,0,0,1,0,4.378l-.91,1.049c-8.19,7.841-28.12-12.084-20.4-20.3l1.15-1A3.081,3.081,0,0,1,7.26.906c.031.031,1.884,2.438,1.884,2.438a3.1,3.1,0,0,1-.007,4.282L7.979,9.082a12.781,12.781,0,0,0,6.931,6.945l1.465-1.165a3.1,3.1,0,0,1,4.281-.006S23.062,16.708,23.093,16.739Zm-1.376,1.454s-2.393-1.841-2.424-1.872a1.1,1.1,0,0,0-1.549,0c-.027.028-2.044,1.635-2.044,1.635a1,1,0,0,1-.979.152A15.009,15.009,0,0,1,5.9,9.3a1,1,0,0,1,.145-1S7.652,6.282,7.679,6.256a1.1,1.1,0,0,0,0-1.549c-.031-.03-1.872-2.425-1.872-2.425a1.1,1.1,0,0,0-1.51.039l-1.15,1C-2.495,10.105,14.776,26.418,20.721,20.8l.911-1.05A1.121,1.121,0,0,0,21.717,18.193Z" fill="currentColor" /></svg>
+                                </div>
+                                {errors?.phone && <p className="text-xs text-red-600 mt-1">{errors?.phone}</p>}
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="whatsapp_number" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Whatsapp No.</label>
+                                <div className="relative mt-1">
+                                    <input type="tel" className={`peer text-sm w-full pr-3 py-3 pl-10 border-1 ${errors?.whatsapp_number ? "border-red-600" : "border-gray-300"} rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} id="whatsapp_number" name="whatsapp_number" placeholder="Enter your whatsapp number" value={data?.whatsapp_number} onChange={(e) => dispatch(e)} />
+                                    <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24" width="21" height="19" className={`${errors?.whatsapp_number ? "text-red-600" : "text-gray-300"} absolute top-1/2 left-3 -translate-y-1/2 peer-focus:text-teal dark:text-gray-600`}><path d="M13,1a1,1,0,0,1,1-1A10.011,10.011,0,0,1,24,10a1,1,0,0,1-2,0,8.009,8.009,0,0,0-8-8A1,1,0,0,1,13,1Zm1,5a4,4,0,0,1,4,4,1,1,0,0,0,2,0,6.006,6.006,0,0,0-6-6,1,1,0,0,0,0,2Zm9.093,10.739a3.1,3.1,0,0,1,0,4.378l-.91,1.049c-8.19,7.841-28.12-12.084-20.4-20.3l1.15-1A3.081,3.081,0,0,1,7.26.906c.031.031,1.884,2.438,1.884,2.438a3.1,3.1,0,0,1-.007,4.282L7.979,9.082a12.781,12.781,0,0,0,6.931,6.945l1.465-1.165a3.1,3.1,0,0,1,4.281-.006S23.062,16.708,23.093,16.739Zm-1.376,1.454s-2.393-1.841-2.424-1.872a1.1,1.1,0,0,0-1.549,0c-.027.028-2.044,1.635-2.044,1.635a1,1,0,0,1-.979.152A15.009,15.009,0,0,1,5.9,9.3a1,1,0,0,1,.145-1S7.652,6.282,7.679,6.256a1.1,1.1,0,0,0,0-1.549c-.031-.03-1.872-2.425-1.872-2.425a1.1,1.1,0,0,0-1.51.039l-1.15,1C-2.495,10.105,14.776,26.418,20.721,20.8l.911-1.05A1.121,1.121,0,0,0,21.717,18.193Z" fill="currentColor" /></svg>
+                                </div>
+                                {errors?.whatsapp_number && <p className="text-xs text-red-600 mt-1">{errors?.whatsapp_number}</p>}
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="email" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Email</label>
+                                <div className="relative mt-1">
+                                    <input type="email" name="email" className={`peer text-sm w-full pr-4 py-3 pl-10 border-1 ${errors?.email ? "border-red-600" : "border-gray-300"} rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} placeholder="info@gmail.com" id="email" value={data?.email} readOnly={true} />
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="21" height="19" viewBox="0 0 21 19" fill="none" className={`${errors?.email ? "text-red-600" : "text-gray-300"} absolute top-1/2 left-3 -translate-y-1/2 peer-focus:text-teal dark:text-gray-600`}>
+                                        <path d="M15.6578 6.85916L11.6786 10.063C10.9255 10.6534 9.86992 10.6534 9.11687 10.063L5.10352 6.85916" stroke="currentColor" strokeWidth="1.52655" strokeLinecap="round" strokeLinejoin="round"></path>
+                                        <path fillRule="evenodd" clipRule="evenodd" d="M5.9749 1.67123H14.7701C16.0383 1.68545 17.2453 2.22157 18.1101 3.15471C18.9749 4.08786 19.4219 5.33659 19.3471 6.61007V12.6999C19.4219 13.9734 18.9749 15.2221 18.1101 16.1552C17.2453 17.0884 16.0383 17.6245 14.7701 17.6387H5.9749C3.25094 17.6387 1.41504 15.4227 1.41504 12.6999V6.61007C1.41504 3.88726 3.25094 1.67123 5.9749 1.67123Z" stroke="currentColor" strokeWidth="1.52655" strokeLinecap="round" strokeLinejoin="round"></path>
+                                    </svg>
+                                </div>
+                                {errors?.email && <p className="text-xs text-red-600 mt-1">{errors?.email}</p>}
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="official_email" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Official Email</label>
+                                <div className="relative mt-1">
+                                    <input type="email" name="official_email" className={`peer text-sm w-full pr-4 py-3 pl-10 border-1 ${errors?.official_email ? "border-red-600" : "border-gray-300"} rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} placeholder="info@gmail.com" id="official_email" value={data?.official_email} onChange={(e) => dispatch(e)} />
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="21" height="19" viewBox="0 0 21 19" fill="none" className={`${errors?.official_email ? "text-red-600" : "text-gray-300"} absolute top-1/2 left-3 -translate-y-1/2 peer-focus:text-teal dark:text-gray-600`}>
+                                        <path d="M15.6578 6.85916L11.6786 10.063C10.9255 10.6534 9.86992 10.6534 9.11687 10.063L5.10352 6.85916" stroke="currentColor" strokeWidth="1.52655" strokeLinecap="round" strokeLinejoin="round"></path>
+                                        <path fillRule="evenodd" clipRule="evenodd" d="M5.9749 1.67123H14.7701C16.0383 1.68545 17.2453 2.22157 18.1101 3.15471C18.9749 4.08786 19.4219 5.33659 19.3471 6.61007V12.6999C19.4219 13.9734 18.9749 15.2221 18.1101 16.1552C17.2453 17.0884 16.0383 17.6245 14.7701 17.6387H5.9749C3.25094 17.6387 1.41504 15.4227 1.41504 12.6999V6.61007C1.41504 3.88726 3.25094 1.67123 5.9749 1.67123Z" stroke="currentColor" strokeWidth="1.52655" strokeLinecap="round" strokeLinejoin="round"></path>
+                                    </svg>
+                                </div>
+                                {errors?.official_email && <p className="text-xs text-red-600 mt-1">{errors?.official_email}</p>}
                             </div>
                             <div className="col-span-1 lg:col-span-3">
-                                <h4 className="text-2xl mt-4 text-gray-700 font-semibold mb-0">Address Information</h4>
+                                <h4 className="text-2xl mt-4 text-gray-700 font-semibold mb-0">Address of current residence</h4>
                             </div>
                             <div className="form-group">
-                                <label htmlFor="country" className="text-gray-700 text-sm font-medium dark:text-gray-400">Country Name</label>
+                                <label htmlFor="country" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Country Name</label>
                                 <div className="relative mt-1">
                                     <input type="text" name="country" className={`peer text-sm w-full pr-3 py-3 pl-10 border-1 ${errors?.country ? "border-red-600" : "border-gray-300"} rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} id="country" placeholder="Country Name" value={data?.country} onChange={(e) => dispatch(e)} />
                                     <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 512 512" style={{ enableBackground: "new 0 0 512 512" }} xmlSpace="preserve" width="21" height="19" className={`${errors?.country ? "text-red-600" : "text-gray-300"} absolute top-1/2 left-3 -translate-y-1/2 peer-focus:text-teal dark:text-gray-600`}>
@@ -458,7 +566,7 @@ function Profile() {
                                 {errors?.country && <p className="text-xs text-red-600 mt-1">{errors?.country}</p>}
                             </div>
                             <div className="form-group">
-                                <label htmlFor="state" className="text-gray-700 text-sm font-medium dark:text-gray-400">State Name</label>
+                                <label htmlFor="state" className="text-gray-700 text-sm font-semibold dark:text-gray-400">State Name</label>
                                 <div className="relative mt-1">
                                     <input type="text" name="state" className={`peer text-sm w-full pr-3 py-3 pl-10 border-1 ${errors?.state ? "border-red-600" : "border-gray-300"} rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} id="state" placeholder="State Name" value={data?.state} onChange={(e) => dispatch(e)} />
                                     <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 512 512" style={{ enableBackground: "new 0 0 512 512" }} xmlSpace="preserve" width="21" height="19" className={`${errors?.state ? "text-red-600" : "text-gray-300"} absolute top-1/2 left-3 -translate-y-1/2 peer-focus:text-teal dark:text-gray-600`}>
@@ -471,7 +579,7 @@ function Profile() {
                                 {errors?.state && <p className="text-xs text-red-600 mt-1">{errors?.state}</p>}
                             </div>
                             <div className="form-group">
-                                <label htmlFor="city" className="text-gray-700 text-sm font-medium dark:text-gray-400">City Name</label>
+                                <label htmlFor="city" className="text-gray-700 text-sm font-semibold dark:text-gray-400">City/District Name</label>
                                 <div className="relative mt-1">
                                     <input type="text" name="city" className={`peer text-sm w-full pr-3 py-3 pl-10 border-1 ${errors?.city ? "border-red-600" : "border-gray-300"} rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} id="city" placeholder="City Name" value={data?.city} onChange={(e) => dispatch(e)} />
                                     <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 512 512" style={{ enableBackground: "new 0 0 512 512" }} xmlSpace="preserve" width="21" height="19" className={`${errors?.city ? "text-red-600" : "text-gray-300"} absolute top-1/2 left-3 -translate-y-1/2 peer-focus:text-teal dark:text-gray-600`}>
@@ -484,7 +592,7 @@ function Profile() {
                                 {errors?.city && <p className="text-xs text-red-600 mt-1">{errors?.city}</p>}
                             </div>
                             <div className="form-group">
-                                <label htmlFor="pincode" className="text-gray-700 text-sm font-medium dark:text-gray-400">Pincode</label>
+                                <label htmlFor="pincode" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Pincode</label>
                                 <div className="relative mt-1">
                                     <input type="number" name="pincode" className={`peer text-sm w-full pr-3 py-3 pl-10 border-1 ${errors?.pincode ? "border-red-600" : "border-gray-300"} rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} id="pincode" placeholder="Pincode" value={data?.pincode} onChange={(e) => dispatch(e)} />
                                     <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 512 512" style={{ enableBackground: "new 0 0 512 512" }} xmlSpace="preserve" width="21" height="19" className={`${errors?.pincode ? "text-red-600" : "text-gray-300"} absolute top-1/2 left-3 -translate-y-1/2 peer-focus:text-teal dark:text-gray-600`}>
@@ -497,7 +605,7 @@ function Profile() {
                                 {errors?.pincode && <p className="text-xs text-red-600 mt-1">{errors?.pincode}</p>}
                             </div>
                             <div className="form-group lg:col-span-2">
-                                <label htmlFor="address1" className="text-gray-700 text-sm font-medium dark:text-gray-400">Address</label>
+                                <label htmlFor="address1" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Locality/Area</label>
                                 <div className="relative mt-1">
                                     <input type="text" name="address1" id="address1" className={`peer text-sm w-full pr-3 py-3 pl-10 border-1 ${errors?.address1 ? "border-red-600" : "border-gray-300"} rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} placeholder="House No. ( Colony Name )" value={data?.address1} onChange={(e) => dispatch(e)} />
                                     <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 512 512" style={{ enableBackground: "new 0 0 512 512" }} xmlSpace="preserve" width="21" height="19" className={`${errors?.address1 ? "text-red-600" : "text-gray-300"} absolute top-1/2 left-3 -translate-y-1/2 peer-focus:text-teal dark:text-gray-600`}>
@@ -509,9 +617,208 @@ function Profile() {
                                 </div>
                                 {errors?.address1 && <p className="text-xs text-red-600 mt-1">{errors?.address1}</p>}
                             </div>
+                            <div className="col-span-1 lg:col-span-3">
+                                <h4 className="text-2xl mt-4 text-gray-700 font-semibold mb-0">Professional Details</h4>
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="degree" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Degree</label>
+                                <div className="relative mt-1">
+                                    <div className={`flex flex-wrap gap-1 min-h-11 text-sm w-full p-3 border-1 ${errors?.degree ? "border-red-600" : "border-gray-300"} rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`}>
+                                        {data?.degree?.length > 0 &&
+                                            data?.degree?.map((d) => (
+                                                <div className="bg-teal pl-1 py-1 pr-1 text-xs text-white flex gap-1" key={d}>{d} 
+                                                    <button className="bg-white text-gray-900 font-bold px-1 cursor-pointer" onClick={() => handleDegree({type : false, value : d})}>X</button>
+                                                </div>
+                                            ))
+                                        }
+                                        <input type="text" className="w-full min-w-5 flex-1 border-0 outline-none text-sm" placeholder="Select..." value={degreeSearch} onChange={(e) => setDegreeSearch(e.target.value)} onFocus={() => setDegreeOpen(true)} onBlur={() => setDegreeOpen(false)} />
+                                    </div>
+                                    {degreeOpen &&
+                                        <ul className="absolute top-full left-0 bg-white w-full text-sm shadow-sm border border-gray-200 rounded-lg z-9 max-h-40 overflow-y-auto">
+                                            {filteredDegree.length > 0 ?
+                                                filteredDegree?.map(degree => (
+                                                    <li className="py-2 px-4 hover:bg-teal hover:text-white cursor-pointer" onMouseDown={() => handleDegree({type : true, value : degree})} key={degree}>{degree}</li>
+                                                )) : <li className="text-center text-sm text-gray-500 py-2 px-4">No options</li>
+                                            }
+                                        </ul>
+                                    }
+                                </div>
+                            </div>
+                            {data?.degree?.length > 0 ?
+                                data?.degree?.map((deg, index) => (
+                                    <div className="col-span-3" key={index}>
+                                        <div className="text-sm font-semibol text-white bg-teal w-max pl-4 gap-2 py-[0.5px] pr-[0.5px] flex">{index+1}. {deg} <button className="bg-white text-gray-900 font-bold px-1 cursor-pointer" onClick={() => handleDegree({type : false, value : deg})}>X</button></div>
+                                        <div className="grid grid-cols-4 gap-2 border border-gray-200 p-3 mb-2">
+                                            <div className="form-group">
+                                                <label htmlFor="college" className="text-gray-700 text-sm font-semibold dark:text-gray-400">College</label>
+                                                <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="College" />
+                                            </div>
+                                            <div className="form-group">
+                                                <label htmlFor="university" className="text-gray-700 text-sm font-semibold dark:text-gray-400">University</label>
+                                                <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="University" />
+                                            </div>
+                                            <div className="form-group">
+                                                <label htmlFor="country" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Country</label>
+                                                <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Country" />
+                                            </div>
+                                            <div className="form-group">
+                                                <label htmlFor="year" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Year of passing</label>
+                                                <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Year of passing" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                )) : 
+                                <div className="col-span-2"></div>
+                            }
+
+                            <div className="form-group col-span-3">
+                                <label htmlFor="Practice" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Employed / Solo Pracititions</label>
+                               <div className="flex gap-3 mt-3">
+                                    <label htmlFor="solo" className="flex items-center gap-2 text-base font-semibold text-gray-700 cursor-pointer">
+                                        Solo 
+                                        <span className="relative content-center -mb-2">
+                                            <input type="radio" className="sr-only" name="practice" value="solo" id="solo" checked={data?.practice==="solo"} onChange={(e) => dispatch(e)} />
+                                            <span className={`w-5 h-5 border border-gray-300 rounded-full flex justify-center items-center -mt-2 ${data?.practice==="solo" ? "bg-teal" : ""}`}>
+                                                <span className="bg-white w-2 h-2 rounded-full inline-block"></span>
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <label htmlFor="employed" className="flex items-center gap-2 text-base font-semibold text-gray-700 cursor-pointer">
+                                        Employed
+                                        <span className="relative content-center -mb-2">
+                                            <input type="radio" className="sr-only" name="practice" value="employed" id="employed" checked={data?.practice==="employed"} onChange={(e) => dispatch(e)} />
+                                            <span className={`w-5 h-5 border border-gray-300 rounded-full flex justify-center items-center -mt-2 ${data?.practice==="employed" ? "bg-teal" : ""}`}>
+                                                <span className="bg-white w-2 h-2 rounded-full inline-block"></span>
+                                            </span>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                            {data?.practice == "solo" ? 
+                                <>
+                                    <div className="form-group">
+                                        <label htmlFor="medical" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Medical Name</label>
+                                        <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Medical name" />
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="mcountry" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Country</label>
+                                        <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Country" />
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="mstate" className="text-gray-700 text-sm font-semibold dark:text-gray-400">State</label>
+                                        <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="State" />
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="ncity" className="text-gray-700 text-sm font-semibold dark:text-gray-400">City/District</label>
+                                        <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="City/district" />
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="mpincode" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Pincode</label>
+                                        <input type="number" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Pincode" />
+                                    </div>
+                                    <div className="form-group"></div>
+                                </> : 
+                                <>
+                                    <div className="form-group">
+                                        <label htmlFor="area" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Govt / Private / NGO</label>
+                                        <select className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300">
+                                            <option value="govt">Govt.</option>    
+                                            <option value="private">Private</option>    
+                                            <option value="ngo">NGO</option>    
+                                        </select>
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="name" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Name</label>
+                                        <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="name" />
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="mcountry" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Country</label>
+                                        <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Country" />
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="mstate" className="text-gray-700 text-sm font-semibold dark:text-gray-400">State</label>
+                                        <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="State" />
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="city" className="text-gray-700 text-sm font-semibold dark:text-gray-400">City</label>
+                                        <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="City" />
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="mpincode" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Pincode</label>
+                                        <input type="number" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Pincode" />
+                                    </div>
+                                </>
+                            }
+                            <div className="form-group">
+                                <label htmlFor="interest" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Area of interest</label>
+                                <div className={`flex flex-wrap gap-1 min-h-11 text-sm w-full p-3 border-1 ${errors?.interest ? "border-red-600" : "border-gray-300"} rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`}>
+                                    {data?.interest?.length > 0 &&
+                                        data?.interest?.map((d) => (
+                                            <div className="bg-teal pl-1 py-1 pr-1 text-xs text-white flex gap-1" key={d}>{d}
+                                                <button className="bg-white text-gray-900 font-bold px-1 cursor-pointer" onClick={() => handleInterest({ type: false, value: d })}>X</button>
+                                            </div>
+                                        ))
+                                    }
+                                    <input type="text" className="w-full min-w-5 flex-1 border-0 outline-none text-sm" placeholder="Select..." value={interestSearch} onChange={(e) => setInterestSearch(e.target.value)} 
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Enter" && interestSearch.trim() !== "") {
+                                            e.preventDefault();
+                                            handleInterest({
+                                                type: true,
+                                                value: interestSearch.trim()
+                                            });
+                                            }
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="experience" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Year's of experience</label>
+                                <input type="number" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Year's of experience" name="experience" id="experience" value={data?.experience} onChange={(e) => dispatch(e)} />
+                            </div>
+                            <div className="form-group col-span-3 my-2">
+                                <div className="flex gap-2">
+                                    <div className="relative h-[20px]">
+                                        <input type="checkbox" id="confirm" name="confirm" className="w-5 h-5 appearance-none cursor-pointer border border-gray-300 checked:border-transparent rounded-md dark:border-gray-600 checked:bg-teal disabled:opacity-60 " value={data?.confirm} onChange={(e) => dispatch(e)} />
+                                        {data?.confirm &&
+                                            <svg className="absolute transform -translate-x-1/2 -translate-y-1/2 pointer-events-none top-1/2 left-1/2" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M11.6666 3.5L5.24992 9.91667L2.33325 7" stroke="white" strokeWidth="1.94437" strokeLinecap="round" strokeLinejoin="round"></path></svg>
+                                        }
+                                    </div>
+                                    <label htmlFor="confirm" className="text-sm text-gray-700">I aggree to terms & conditions and Privacy policy</label>
+                                </div>
+                            </div>
+
+                            {/* <div className="form-group">
+                                <label htmlFor="specility" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Specility</label>
+                                <div className="relative mt-1">
+                                    <select id="specility" name="specility" className={`text-sm w-full p-3 pr-8 border-1 ${errors?.specility ? "border-red-600" : "border-gray-300"} rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} value={data?.specility} onChange={(e) => dispatch(e)}>
+                                        <option value="">Select</option>
+                                        <option value="medicine">Medicine</option>
+                                        <option value="surgen">Surgen</option>
+                                    </select>
+                                    <svg className="absolute text-gray-700 dark:text-gray-400 right-3 top-1/2 -translate-y-1/2 pointer-events-none" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.79175 8.02075L10.0001 13.2291L15.2084 8.02075" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path></svg>
+                                </div>
+                                {errors?.specility && <p className="text-xs text-red-600 mt-1">{errors?.specility}</p>}
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="smcRegistration" className="text-gray-700 text-sm font-semibold dark:text-gray-400">SMC/MCI Registration Number</label>
+                                <div className="relative mt-1">
+                                    <input type="number" name="smcRegistration" className={`peer text-sm w-full pr-3 py-3 pl-10 border-1 ${errors?.smcRegistration ? "border-red-600" : "border-gray-300"} rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} id="smcRegistration" placeholder="SMC/MCI Registration Number" value={data?.smcRegistration} onChange={(e) => dispatch(e)} />
+                                    <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" viewBox="0 0 24 24" data-name="Layer 1" width="21" height="19" className={`${errors?.smcRegistration ? "text-red-600" : "text-gray-300"} absolute top-1/2 left-3 -translate-y-1/2 peer-focus:text-teal dark:text-gray-600`}><path d="m5 9.5c0-1.381 1.119-2.5 2.5-2.5s2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5-2.5-1.119-2.5-2.5zm19 7.5v-10c0-2.757-2.243-5-5-5h-14c-2.757 0-5 2.243-5 5v10c0 2.757 2.243 5 5 5h14c2.757 0 5-2.243 5-5zm-5-13c1.654 0 3 1.346 3 3v10c0 1.654-1.346 3-3 3h-14c-1.654 0-3-1.346-3-3v-10c0-1.654 1.346-3 3-3zm1 4c0-.552-.447-1-1-1h-5c-.553 0-1 .448-1 1s.447 1 1 1h5c.553 0 1-.448 1-1zm0 4c0-.552-.447-1-1-1h-5c-.553 0-1 .448-1 1s.447 1 1 1h5c.553 0 1-.448 1-1zm-2 4c0-.553-.447-1-1-1h-3c-.553 0-1 .447-1 1s.447 1 1 1h3c.553 0 1-.447 1-1zm-7.797.979c.541-.112.889-.642.776-1.183-.335-1.62-1.799-2.797-3.479-2.797s-3.144 1.177-3.479 2.797c-.112.541.235 1.07.776 1.183.538.107 1.07-.236 1.182-.776.145-.697.784-1.203 1.521-1.203s1.376.506 1.521 1.203c.109.544.654.889 1.182.776z" fill="currentColor" /></svg>
+                                </div>
+                                {errors?.smcRegistration && <p className="text-xs text-red-600 mt-1">{errors?.smcRegistration}</p>}
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="designation" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Designation</label>
+                                <div className="relative mt-1">
+                                    <input type="text" name="designation" className={`peer text-sm w-full pr-3 py-3 pl-10 border-1 ${errors?.designation ? "border-red-600" : "border-gray-300"} rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} id="designation" placeholder="Designation" value={data?.designation} onChange={(e) => dispatch(e)} />
+                                    <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" viewBox="0 0 24 24" data-name="Layer 1" width="21" height="19" className={`${errors?.designation ? "text-red-600" : "text-gray-300"} absolute top-1/2 left-3 -translate-y-1/2 peer-focus:text-teal dark:text-gray-600`}><path d="m24 9.5a3.5 3.5 0 1 0 -5 3.149v3.351a5 5 0 0 1 -10 0v-.151a7.513 7.513 0 0 0 6-7.349v-3a5.506 5.506 0 0 0 -5.5-5.5 1.5 1.5 0 0 0 0 3 2.5 2.5 0 0 1 2.5 2.5v3a4.5 4.5 0 0 1 -9 0v-3a2.5 2.5 0 0 1 2.5-2.5 1.5 1.5 0 0 0 0-3 5.506 5.506 0 0 0 -5.5 5.5v3a7.513 7.513 0 0 0 6 7.349v.151a8 8 0 0 0 16 0v-3.351a3.5 3.5 0 0 0 2-3.149z" fill="currentColor" /></svg>
+                                </div>
+                                {errors?.designation && <p className="text-xs text-red-600 mt-1">{errors?.designation}</p>}
+                            </div>
                             <div className="form-group lg:col-span-2">
-                                <h6 className="text-sm font-medium mb-2 text-gray-700">Upload registration certificate (PDF/JPG)</h6>
-                                <label htmlFor="dropFile" className={`group text-gray-600 text-sm font-medium block w-full min-h-40 border-2 border-dashed rounded-xl text-center content-center cursor-pointer duration-200 ${isDragging ? "border-[#00a874] bg-[#e1fdf0]" : "border-gray-300 hover:border-gray-600 "} ${errors?.registration_certificate ? "border-red-600" : ""}`}
+                                <h6 className="text-sm font-semibold mb-2 text-gray-700">Upload registration certificate (PDF/JPG)</h6>
+                                <label htmlFor="dropFile" className={`group text-gray-600 text-sm font-semibold block w-full min-h-40 border-2 border-dashed rounded-xl text-center content-center cursor-pointer duration-200 ${isDragging ? "border-[#00a874] bg-[#e1fdf0]" : "border-gray-300 hover:border-gray-600 "} ${errors?.registration_certificate ? "border-red-600" : ""}`}
                                     data-name="registration_certificate"
                                     onDrop={handleDrop}
                                     onDragOver={handleDragOver}
@@ -560,7 +867,7 @@ function Profile() {
                                 })()}
                             </div>
                             <div className="form-group">
-                                <label htmlFor="image_url" className="text-gray-700 text-sm font-medium dark:text-gray-400">Profile image</label>
+                                <label htmlFor="image_url" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Profile image</label>
                                 <div className="relative mt-1">
                                     <input type="file" name="image_url" id="image_url" className={`peer text-sm w-full pr-3 py-3 pl-10 border-1 ${errors?.image_url ? "border-red-600" : "border-gray-300"} rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} onChange={handleFileChange} />
                                     <svg xmlns="http://www.w3.org/2000/svg" width="21" height="19" viewBox="0 0 21 19" fill="none" className={`${errors?.first_name ? "text-red-600" : "text-gray-300"} absolute top-1/2 left-3 -translate-y-1/2 peer-focus:text-teal dark:text-gray-600`}>
@@ -568,9 +875,9 @@ function Profile() {
                                     </svg>
                                 </div>
                                 {errors?.image_url && <p className="text-xs text-red-600 mt-1">{errors?.image_url}</p>}
-                            </div>
+                            </div> */}
                         </div>
-                        <button className={`text-center px-10 py-3 flex items-center gap-0 bg-teal w-max text-white rounded-xl mt-4 ${loading ? "opacity-80 cursor-not-allowed" : "cursor-pointer hover:bg-teal-dark"}`} disabled={loading}>
+                        <button className={`text-center px-10 py-3 flex items-center gap-0 bg-teal w-max text-white rounded-xl mt-4 ${loading ? "opacity-80 cursor-not-allowed" : "cursor-pointer hover:bg-teal-dark"} mt-3`} disabled={loading}>
                             {loading ?
                                 <>
                                     <svg aria-hidden="true" role="status" className="w-4 h-4 me-2 text-white animate-spin" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -598,7 +905,7 @@ function Profile() {
                                 <div className="flex justify-between items-start mb-5">
                                     <div>
                                         <h3 className="text-2xl font-semibold mb-2">Update your password</h3>
-                                        <p className="text-sm font-medium text-gray-500">For security reasons, please enter your current password and a new password.</p>
+                                        <p className="text-sm font-semibold text-gray-500">For security reasons, please enter your current password and a new password.</p>
                                     </div>
                                     <button className="w-12 h-12 rounded-full bg-gray-100 text-gray-500 content-center cursor-pointer hover:bg-gray-200"
                                         onClick={() => { setEditPass(false); }}
