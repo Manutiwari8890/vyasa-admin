@@ -92,11 +92,11 @@ function DoctorSignUp() {
         <>
             <div className="min-h-screen content-center">
                 <main className="w-full h-full" dir="ltr">
-                    <div className="grid grid-cols-2 relative">
-                        <div className="bg-[url('/assets/images/login-bg.jpg')] min-h-screen bg-center bg-cover text-center content-center">
+                    <div className="grid grid-cols-2 relative max-h-screen overflow-hidden">
+                        <div className="bg-[url('/assets/images/login-bg.jpg')] max-h-screen bg-center bg-cover text-center content-center overflow-hidden w-full col-span-2 min-h-screen lg:col-span-1">
                             <img src="/assets/images/grid-01.svg" alt="" />
                         </div>
-                        <div className="bg-white h-screen px-25 py-5 content-center overflow-y-scroll scrollbar dark:bg-gray-900">
+                        <div className="bg-white content-center overflow-y-scroll scrollbar dark:bg-gray-900 absolute -bottom-1 h-max w-full px-8 py-12 lg:px-15 lg:py-5 xl:px-25 lg:relative lg:h-screen">
                             <div className="w-full max-w-[600px] m-auto">
                                 <h4 className="text-3xl font-bold text-gray-800 mb-3 dark:text-gray-300">Sign Up</h4>
                                 <form onSubmit={handleSubmit}>
