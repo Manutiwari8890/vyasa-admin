@@ -24,7 +24,7 @@ const countries = [
 ];
 
 
-export function CountrySelect({value, onChange}){
+export function CountrySelect({value, onChange, name, error}){
 
     const [search, setSearch] = useState("");
     const [open, setOpen] = useState(false);
@@ -33,14 +33,16 @@ export function CountrySelect({value, onChange}){
     );
     return (
         <>
-            <div className="relative">
+            <div className="relative mt-1">
             <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onFocus={() => setOpen(true)}
                 onBlur={() => setOpen(false)}
                 placeholder="Search Country"
-                className="peer text-sm w-full pr-4 py-3 pl-4 border-1 border-gray-300 rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300"
+                name={name}
+                id={name}
+                className={`peer text-sm w-full pr-4 py-3 pl-4 border-1 ${error ? "border-red-600" : "border-gray-300"}  rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`}
             />
             {open &&
                 <ul className="absolute w-full bg-white shadow-sm border border-gray-200 max-h-40 overflow-y-auto rounded-lg z-9">
@@ -59,7 +61,7 @@ export function CountrySelect({value, onChange}){
                     ))}
                 </ul>
             }
-            
+            {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
             </div>
         </>
     )

@@ -3,10 +3,10 @@ import { Link } from "react-router-dom";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/themes/material_blue.css";
 import { CountrySelect } from "../Component/CountrySelect";
-
+import LocationFields from "../Component/LocationFields";
 
 const initial = {
-    title: "", first_name: "", middle_name: "", last_name: "", gender: "male", phone: "", whatsapp_number: "" , email : "", official_email: "", nationality : "", language:[], dob: new Date().toISOString().split("T")[0], degree: "", specility: "", smcRegistration: "", designation: "", country: "", state: "", city: "", pincode: "", address1: "", registration_certificate: "", image_url : "", practice : "solo", experience : "", interest : [], confirm : false
+    title: "", first_name: "", middle_name: "", last_name: "", gender: "male", phone: "", samePhone : false, whatsapp_number: "", email : "", official_email: "", nationality : "", language:[], dob: new Date().toISOString().split("T")[0], country: null, state: null, city: null, pincode: "", address1: "", degreeValues : [], practice : "solo", medical_name : "", medical_country : "", medical_state : "", medical_city : "", medical_pincode : "",  designation: "",  image_url : "", experience : "", interest : [], confirm : false, service_type : "", org_name : "", org_country : "", org_state : "", org_city : "", org_pincode : "", registration_no: "", registration_name : "", registration_date : new Date().toISOString().split("T")[0], registration_valid : "", registration_country : "", registration_certificate : "" 
 }
 
 const reducer = (prev, e) => {
@@ -26,7 +26,7 @@ const reducer = (prev, e) => {
 }
 
 function Profile() {
-    const wrapperRef = useRef(null);
+    const wrapperRef = useRef([]);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState({ type: false, value: "" });
     const [data, dispatch] = useReducer(reducer, initial)
@@ -65,7 +65,6 @@ function Profile() {
                         phone: result?.data?.phone || "",
                         email: result?.data?.email || "",
                         dob: result?.data?.detail?.dob || "",
-                        specility: result?.data?.detail?.speciality || "",
                         smcRegistration: result?.data?.detail?.registration_number || "",
                         designation: result?.data?.detail?.doctor_designation || "",
                         country: result?.data?.detail?.country || "",
@@ -125,7 +124,6 @@ function Profile() {
 
         const reader = new FileReader();
         reader.readAsDataURL(file);
-
         reader.onloadend = () => {
             dispatch({
                 target: {
@@ -175,11 +173,20 @@ function Profile() {
         const error = {};
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i
 
+        if (!values.title) {
+            error.title = "Title is required !"
+        }
         if (!values.first_name) {
             error.first_name = "First name is required !"
         }
         if (!values?.last_name) {
             error.last_name = "Last name is required !"
+        }
+        if (!values?.nationality) {
+            error.nationality = "Nationality is required !"
+        }
+        if (!values?.language?.length) {
+            error.language = "Language is required !"
         }
         if (!values?.phone) {
             error.phone = "Phone number is required !"
@@ -198,9 +205,6 @@ function Profile() {
             error.official_email = "Email is required !"
         }else if(regex.test(values?.official_email)){
             errors.official_email = "Email is not valid"
-        }
-        if (!values?.specility) {
-            error.specility = "Specility is required !"
         }
         if (!values?.smcRegistration) {
             error.smcRegistration = "SMC/MCI Registration Number is required !"
@@ -223,10 +227,24 @@ function Profile() {
         if (!values?.address1) {
             error.address1 = "Address is required !"
         }
+        if (!values?.registration_no) {
+            error.registration_no = "Registration no. is required !"
+        }
+        if (!values?.registration_country) {
+            error.registration_country = "Registration country is required !"
+        }
         if (!values?.registration_certificate) {
             error.registration_certificate = "Registration certificate is required !"
         }
-        console.log(values)
+        if (!values?.experience) {
+            error.experience = "Experience is required !"
+        }
+        if (!values?.registration_no) {
+            error.registration_no = "Registration no. is required !"
+        }
+        if (!values?.degreeValues) {
+            error.degreeValues = "Degree is required !"
+        }
         return error
     }
 
@@ -290,33 +308,67 @@ function Profile() {
     const handleCountry = (field, value) => {
         dispatch({target: {name : field, value : value}})
     }
-    const handleLanguage = (e) => {
-        const updated = data?.language?.includes(e.target.value) ? data?.language.filter((item) => item!==e.target.value) : [...data?.language, e.target.value]
-        console.log(updated)
-        dispatch({ target: { name: "language", value: updated } })
-    }
 
     const [degreeSearch, setDegreeSearch] = useState("");
     const [degreeOpen, setDegreeOpen] = useState(false);
-    const [degrees, setDegrees] = useState(["MBBS", "BAHS", "DrNB", "BDS", "MDS", "DNB", "MCH", "MS", "DM"]);
+    const [degrees, setDegrees] = useState(["MBBS", "BDS", "BAMS", "BAHS", "BUMS", "BSMS", "MD", "MS", "MDS", "DNB", "DM", "MCh", "DrNB", "FNB", "PDCC", "MRCP", "MRCS", "FRCP", "FRCS", "FRCOG", "FRCA", "DGO", "DCH", "DA", "DMRD", "DPM", "DVD", "DTCD", "MD (Ayurveda / Homeopathy / Unani)", "MS (Ayurveda)"]);
     const filteredDegree = degrees.filter(d =>
         d.toLowerCase().includes(degreeSearch.toLowerCase())
     );
     const handleDegree = (degree) => {
-        let updated = data?.degree;
-        if(degree?.type){
-            updated = [...data?.degree, degree?.value]
-            setDegrees(prev => {
-                const up = prev.filter((p) => p!==degree?.value)
-                return up
-            })
-        }else{
-            updated = data?.degree.filter(avl => avl!==degree?.value)
-            setDegrees(prev => [...prev, degree.value])
+        let updatedDegrees = data?.degree || [];
+        let updatedValues = data?.degreeValues || [];
+
+        if (degree?.type) {
+            updatedDegrees = [...updatedDegrees, degree.value];
+
+            updatedValues = [
+            ...updatedValues,
+            {
+                degree: degree.value,
+                college: "",
+                university: "",
+                country: "",
+                year: ""
+            }
+            ];
+
+            setDegrees(prev => prev.filter(p => p !== degree.value));
+
+        } else {
+            updatedDegrees = updatedDegrees.filter(d => d !== degree.value);
+
+            updatedValues = updatedValues.filter(
+                d => d.degree !== degree.value
+            );
+            setDegrees(prev => [...prev, degree.value]);
         }
-        setDegreeSearch("")
-        dispatch({target : {name : 'degree', value : updated}})
-    }
+
+        setDegreeSearch("");
+
+        dispatch({
+            target: {
+            name: "degreeValues",
+            value: updatedValues
+            }
+        });
+    };
+
+    const handleDegreeValueChange = (degreeName, field, value) => {
+        const updated = data.degreeValues.map(item => {
+            if (item.degree === degreeName) {
+            return { ...item, [field]: value };
+            }
+            return item;
+        });
+
+        dispatch({
+            target: {
+            name: "degreeValues",
+            value: updated
+            }
+        });
+    };
 
     const [interestSearch, setInterestSearch] = useState("");
     const handleInterest = (int) => {
@@ -330,7 +382,86 @@ function Profile() {
         dispatch({target : {name : 'interest', value : updated}})
     }
 
+    const [languageSearch, setLangSearch] = useState("");
+    const [langOpen, setLangOpen] = useState(false);
+    const [languages, setLanguages] = useState(["Assamese", "Bengali", "Bodo", "Dogri", "Gujarati",
+        "Hindi", "Kannada", "Kashmiri", "Konkani", "Maithili", "Malayalam", "Manipuri (Meitei)",
+        "Marathi", "Nepali", "Odia", "Punjabi", "Sanskrit", "Santali", "Sindhi", "Tamil",
+        "Telugu", "Urdu", "English", "Rajasthani", "Tulu", "Bhojpuri", "Garhwali", "Kumaoni"
+        ]);
+    const filteredLanguages = languages.filter(l =>
+        l.toLowerCase().includes(languageSearch.toLowerCase())
+    );
 
+    const handleLanguage = (lang) => {
+        let updated = data?.language;
+        if(lang?.type){
+            updated = [...data?.language, lang?.value]
+            setLanguages(prev => {
+                const up = prev.filter((p) => p!==lang?.value)
+                return up
+            })
+        }else{
+            updated = data?.language.filter(avl => avl!==lang?.value)
+            setLanguages(prev => [...prev, lang.value])
+        }
+        setLangSearch("")
+        dispatch({target : {name : 'language', value : updated}})
+    }
+
+    const handleLocationChange = (prefix, field, value) => {
+    const getKey = (f) => (prefix ? `${prefix}_${f}` : f);
+    let updated = { ...data };
+
+    updated[getKey(field)] = Number(value?.value);
+
+    // reset dependent fields
+    if (field === "country") {
+        updated[getKey("state")] = "";
+        updated[getKey("city")] = "";
+    }
+
+    if (field === "state") {
+        updated[getKey("city")] = "";
+    }
+
+    dispatch({
+        type: "SET_DATA",
+        payload: updated
+    });
+    };
+
+    const [countries, setCountries] = useState([]);
+    const [statesByCountry, setStatesByCountry] = useState({});
+    const [citiesByState, setCitiesByState] = useState({});
+
+    useEffect(() => {
+        Promise.all([
+        fetch("/data/countries.json").then(r => r.json()),
+        fetch("/data/states.json").then(r => r.json()),
+        fetch("/data/cities.json").then(r => r.json())
+        ]).then(([c, s, ci]) => {
+
+        setCountries(
+            c.countries.map(i => ({ label: i.name, value: i.id }))
+        );
+
+        const stateMap = {};
+        s.states.forEach(st => {
+            if (!stateMap[st.country_id]) stateMap[st.country_id] = [];
+            stateMap[st.country_id].push(st);
+        });
+        setStatesByCountry(stateMap);
+
+        // cities map
+        const cityMap = {};
+        ci.cities.forEach(ct => {
+            if (!cityMap[ct.state_id]) cityMap[ct.state_id] = [];
+            cityMap[ct.state_id].push(ct);
+        });
+        setCitiesByState(cityMap);
+        });
+    }, []);
 
     return (
         <>
@@ -382,6 +513,7 @@ function Profile() {
                                 <label htmlFor="select" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Title</label>
                                 <div className="relative mt-1">
                                     <select id="select" name="title" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" value={data?.title} onChange={(e) => dispatch(e)}>
+                                        <option value="">Select</option>
                                         <option value="dr">Dr.</option>
                                         <option value="prof">Prof.</option>
                                     </select>
@@ -421,7 +553,7 @@ function Profile() {
                         <div className="grid grid-cols-1 gap-x-4 gap-y-6 mb-4 lg:grid-cols-3">
                             <div className="form-group">
                                 <label htmlFor="dob" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Date of birth</label>
-                                <div className="relative mt-1" ref={wrapperRef}>
+                                <div className="relative mt-1" ref={(e) => wrapperRef.current[0] = e}>
                                     <Flatpickr
                                         value={data?.dob}
                                         name="dob"
@@ -439,8 +571,8 @@ function Profile() {
                                             monthSelectorType: "static",
                                             disableMobile: true,
                                             onReady: (_, __, fp) => {
-                                                if (wrapperRef.current) {
-                                                    wrapperRef.current.appendChild(fp.calendarContainer);
+                                                if (wrapperRef?.current[0]) {
+                                                    wrapperRef?.current[0].appendChild(fp.calendarContainer);
                                                 }
                                             },
                                         }}
@@ -453,7 +585,7 @@ function Profile() {
                                 {errors?.dob && <p className="text-xs text-red-600 mt-1">{errors?.dob}</p>}
                             </div>
                             <div className="form-group">
-                                <label htmlFor="gender" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Gender</label>
+                                <label htmlFor="male" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Gender</label>
                                 <div className="flex gap-3 mt-3">
                                     <label htmlFor="male" className="flex items-center gap-2 text-base text-gray-700 cursor-pointer">
                                         Male
@@ -486,33 +618,35 @@ function Profile() {
                             </div>
                             <div className="form-group">
                                 <label htmlFor="nationality" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Nationality</label>
-                                <CountrySelect name="nationality" value={data?.nationality} onChange={(value) => handleCountry("nationality", value)} />
+                                <CountrySelect name="nationality" error={errors?.nationality} value={data?.nationality} onChange={(value) => handleCountry("nationality", value)} />
                             </div>
                             <div className="form-group">
-                                <label htmlFor="language" className="text-gray-700 text-sm font-semibold dark:text-gray-400 inline-block mb-3">Language Spoken</label>
-                                <div className="flex gap-3">
-                                    <label htmlFor="hindi" className="flex items-center gap-2">
-                                        <div className="relative h-[20px]">
-                                            <input type="checkbox" id="hindi" value="hindi" className="w-5 h-5 appearance-none cursor-pointer border border-gray-300 checked:border-transparent rounded-md dark:border-gray-600 checked:bg-teal disabled:opacity-60 " onChange={(e) => handleLanguage(e)} />
-                                            {data?.language.includes("hindi") &&
-                                                <svg className="absolute transform -translate-x-1/2 -translate-y-1/2 pointer-events-none top-1/2 left-1/2" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M11.6666 3.5L5.24992 9.91667L2.33325 7" stroke="white" strokeWidth="1.94437" strokeLinecap="round" strokeLinejoin="round"></path></svg>
+                                <label htmlFor="language" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Language</label>
+                                <div className="relative mt-1">
+                                    <div className={`flex flex-wrap gap-1 min-h-11 text-sm w-full p-3 border-1 ${errors?.language ? "border-red-600" : "border-gray-300"} rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`}>
+                                        {data?.language?.length > 0 &&
+                                            data?.language?.map((d) => (
+                                                <div className="bg-teal pl-1 py-1 pr-1 text-xs text-white flex gap-1" key={d}>{d} 
+                                                    <button className="bg-white text-gray-900 font-bold px-1 cursor-pointer" type="button" onClick={() => handleLanguage({type : false, value : d})}>X</button>
+                                                </div>
+                                            ))
+                                        }
+                                        <input type="text" className="w-full min-w-5 flex-1 border-0 outline-none text-sm" placeholder="Select..." value={languageSearch} id="language" onChange={(e) => setLangSearch(e.target.value)} onFocus={() => setLangOpen(true)} onBlur={() => setLangOpen(false)} />
+                                    </div>
+                                    {langOpen &&
+                                        <ul className="absolute top-full left-0 bg-white w-full text-sm shadow-sm border border-gray-200 rounded-lg z-9 max-h-40 overflow-y-auto">
+                                            {filteredLanguages.length > 0 ?
+                                                filteredLanguages?.map(lang => (
+                                                    <li className="py-2 px-4 hover:bg-teal hover:text-white cursor-pointer" onMouseDown={() => handleLanguage({type : true, value : lang})} key={lang}>{lang}</li>
+                                                )) : <li className="text-center text-sm text-gray-500 py-2 px-4">No options</li>
                                             }
-                                        </div>
-                                        <p className="text-sm text-gray-700 dark:text-gray-300">Hindi</p>
-                                    </label>
-                                    <label htmlFor="english" className="flex items-center gap-2">
-                                        <div className="relative h-[20px]">
-                                            <input type="checkbox" id="english" value="english" className="w-5 h-5 appearance-none cursor-pointer border border-gray-300 checked:border-transparent rounded-md dark:border-gray-600 checked:bg-teal disabled:opacity-60 " onChange={(e) => handleLanguage(e)} />
-                                            {data?.language.includes("english") &&
-                                                <svg className="absolute transform -translate-x-1/2 -translate-y-1/2 pointer-events-none top-1/2 left-1/2" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M11.6666 3.5L5.24992 9.91667L2.33325 7" stroke="white" strokeWidth="1.94437" strokeLinecap="round" strokeLinejoin="round"></path></svg>
-                                            }
-                                        </div>
-                                        <p className="text-sm text-gray-700 dark:text-gray-300">English</p>
-                                    </label>
+                                        </ul>
+                                    }
                                 </div>
+                                {errors?.language && <p className="text-xs text-red-600 mt-1">{errors?.language}</p>}
                             </div>
                             <div className="form-group">
-                                <label htmlFor="phone" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Phone Number</label>
+                                <label htmlFor="phone" className="text-gray-700 text-sm font-semibold flex gap-2 dark:text-gray-400">Phone Number</label>
                                 <div className="relative mt-1">
                                     <input type="tel" name="phone" className={`peer text-sm w-full pr-3 py-3 pl-10 border-1 ${errors?.phone ? "border-red-600" : "border-gray-300"} rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} id="phone" placeholder="Enter your phone number" value={data?.phone} readOnly={true} />
                                     <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24" width="21" height="19" className={`${errors?.phone ? "text-red-600" : "text-gray-300"} absolute top-1/2 left-3 -translate-y-1/2 peer-focus:text-teal dark:text-gray-600`}><path d="M13,1a1,1,0,0,1,1-1A10.011,10.011,0,0,1,24,10a1,1,0,0,1-2,0,8.009,8.009,0,0,0-8-8A1,1,0,0,1,13,1Zm1,5a4,4,0,0,1,4,4,1,1,0,0,0,2,0,6.006,6.006,0,0,0-6-6,1,1,0,0,0,0,2Zm9.093,10.739a3.1,3.1,0,0,1,0,4.378l-.91,1.049c-8.19,7.841-28.12-12.084-20.4-20.3l1.15-1A3.081,3.081,0,0,1,7.26.906c.031.031,1.884,2.438,1.884,2.438a3.1,3.1,0,0,1-.007,4.282L7.979,9.082a12.781,12.781,0,0,0,6.931,6.945l1.465-1.165a3.1,3.1,0,0,1,4.281-.006S23.062,16.708,23.093,16.739Zm-1.376,1.454s-2.393-1.841-2.424-1.872a1.1,1.1,0,0,0-1.549,0c-.027.028-2.044,1.635-2.044,1.635a1,1,0,0,1-.979.152A15.009,15.009,0,0,1,5.9,9.3a1,1,0,0,1,.145-1S7.652,6.282,7.679,6.256a1.1,1.1,0,0,0,0-1.549c-.031-.03-1.872-2.425-1.872-2.425a1.1,1.1,0,0,0-1.51.039l-1.15,1C-2.495,10.105,14.776,26.418,20.721,20.8l.911-1.05A1.121,1.121,0,0,0,21.717,18.193Z" fill="currentColor" /></svg>
@@ -520,12 +654,32 @@ function Profile() {
                                 {errors?.phone && <p className="text-xs text-red-600 mt-1">{errors?.phone}</p>}
                             </div>
                             <div className="form-group">
-                                <label htmlFor="whatsapp_number" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Whatsapp No.</label>
+                                <div className="flex gap-2 items-center">
+                                    <label htmlFor="whatsapp_number" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Whatsapp No.</label>
+                                    <div className="flex gap-2 items-center">
+                                        <div className="relative h-[20px]">
+                                            <input type="checkbox" id="samePhone" name="samePhone" className="w-4.5 h-4.5 appearance-none cursor-pointer border border-gray-400 checked:border-transparent rounded-sm dark:border-gray-600 checked:bg-teal disabled:opacity-60 " onChange={(e) => {
+                                                    const checked = e.target.checked
+                                                    dispatch({target:{name : "whatsapp_number", value : checked ? data?.phone : ""}})
+                                                    dispatch(e)
+                                                }}
+                                            />
+                                            {data?.samePhone &&
+                                                <svg className="absolute transform -translate-x-1/2 -translate-y-1/2 pointer-events-none top-1/2 left-1/2" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M11.6666 3.5L5.24992 9.91667L2.33325 7" stroke="white" strokeWidth="1.94437" strokeLinecap="round" strokeLinejoin="round"></path></svg>
+                                            }
+                                        </div>
+                                        <label htmlFor="samePhone" className="text-gray-700 text-sm font-semibold dark:text-gray-400">( Same as phone )</label>
+                                    </div>
+                                </div>
                                 <div className="relative mt-1">
                                     <input type="tel" className={`peer text-sm w-full pr-3 py-3 pl-10 border-1 ${errors?.whatsapp_number ? "border-red-600" : "border-gray-300"} rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} id="whatsapp_number" name="whatsapp_number" placeholder="Enter your whatsapp number" value={data?.whatsapp_number} onChange={(e) => dispatch(e)} />
                                     <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24" width="21" height="19" className={`${errors?.whatsapp_number ? "text-red-600" : "text-gray-300"} absolute top-1/2 left-3 -translate-y-1/2 peer-focus:text-teal dark:text-gray-600`}><path d="M13,1a1,1,0,0,1,1-1A10.011,10.011,0,0,1,24,10a1,1,0,0,1-2,0,8.009,8.009,0,0,0-8-8A1,1,0,0,1,13,1Zm1,5a4,4,0,0,1,4,4,1,1,0,0,0,2,0,6.006,6.006,0,0,0-6-6,1,1,0,0,0,0,2Zm9.093,10.739a3.1,3.1,0,0,1,0,4.378l-.91,1.049c-8.19,7.841-28.12-12.084-20.4-20.3l1.15-1A3.081,3.081,0,0,1,7.26.906c.031.031,1.884,2.438,1.884,2.438a3.1,3.1,0,0,1-.007,4.282L7.979,9.082a12.781,12.781,0,0,0,6.931,6.945l1.465-1.165a3.1,3.1,0,0,1,4.281-.006S23.062,16.708,23.093,16.739Zm-1.376,1.454s-2.393-1.841-2.424-1.872a1.1,1.1,0,0,0-1.549,0c-.027.028-2.044,1.635-2.044,1.635a1,1,0,0,1-.979.152A15.009,15.009,0,0,1,5.9,9.3a1,1,0,0,1,.145-1S7.652,6.282,7.679,6.256a1.1,1.1,0,0,0,0-1.549c-.031-.03-1.872-2.425-1.872-2.425a1.1,1.1,0,0,0-1.51.039l-1.15,1C-2.495,10.105,14.776,26.418,20.721,20.8l.911-1.05A1.121,1.121,0,0,0,21.717,18.193Z" fill="currentColor" /></svg>
                                 </div>
                                 {errors?.whatsapp_number && <p className="text-xs text-red-600 mt-1">{errors?.whatsapp_number}</p>}
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="image_url" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Profile Image</label>
+                                <input type="file" name="image_url" id="image_url" className={`peer text-sm w-full mt-1 pr-4 py-3 pl-4 border-1 border-gray-300 rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} onChange={(e) => handleFileChange(e)} />
                             </div>
                             <div className="form-group">
                                 <label htmlFor="email" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Email</label>
@@ -552,45 +706,18 @@ function Profile() {
                             <div className="col-span-1 lg:col-span-3">
                                 <h4 className="text-2xl mt-4 text-gray-700 font-semibold mb-0">Address of current residence</h4>
                             </div>
-                            <div className="form-group">
-                                <label htmlFor="country" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Country Name</label>
-                                <div className="relative mt-1">
-                                    <input type="text" name="country" className={`peer text-sm w-full pr-3 py-3 pl-10 border-1 ${errors?.country ? "border-red-600" : "border-gray-300"} rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} id="country" placeholder="Country Name" value={data?.country} onChange={(e) => dispatch(e)} />
-                                    <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 512 512" style={{ enableBackground: "new 0 0 512 512" }} xmlSpace="preserve" width="21" height="19" className={`${errors?.country ? "text-red-600" : "text-gray-300"} absolute top-1/2 left-3 -translate-y-1/2 peer-focus:text-teal dark:text-gray-600`}>
-                                        <g id="_01_align_center">
-                                            <path d="M255.104,512.171l-14.871-12.747C219.732,482.258,40.725,327.661,40.725,214.577c0-118.398,95.981-214.379,214.379-214.379   s214.379,95.981,214.379,214.379c0,113.085-179.007,267.682-199.423,284.932L255.104,512.171z M255.104,46.553   c-92.753,0.105-167.918,75.27-168.023,168.023c0,71.042,110.132,184.53,168.023,236.473   c57.892-51.964,168.023-165.517,168.023-236.473C423.022,121.823,347.858,46.659,255.104,46.553z" fill="currentColor" />
-                                            <path d="M255.104,299.555c-46.932,0-84.978-38.046-84.978-84.978s38.046-84.978,84.978-84.978s84.978,38.046,84.978,84.978   S302.037,299.555,255.104,299.555z M255.104,172.087c-23.466,0-42.489,19.023-42.489,42.489s19.023,42.489,42.489,42.489   s42.489-19.023,42.489-42.489S278.571,172.087,255.104,172.087z" fill="currentColor" />
-                                        </g>
-                                    </svg>
-                                </div>
-                                {errors?.country && <p className="text-xs text-red-600 mt-1">{errors?.country}</p>}
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="state" className="text-gray-700 text-sm font-semibold dark:text-gray-400">State Name</label>
-                                <div className="relative mt-1">
-                                    <input type="text" name="state" className={`peer text-sm w-full pr-3 py-3 pl-10 border-1 ${errors?.state ? "border-red-600" : "border-gray-300"} rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} id="state" placeholder="State Name" value={data?.state} onChange={(e) => dispatch(e)} />
-                                    <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 512 512" style={{ enableBackground: "new 0 0 512 512" }} xmlSpace="preserve" width="21" height="19" className={`${errors?.state ? "text-red-600" : "text-gray-300"} absolute top-1/2 left-3 -translate-y-1/2 peer-focus:text-teal dark:text-gray-600`}>
-                                        <g id="_01_align_center">
-                                            <path d="M255.104,512.171l-14.871-12.747C219.732,482.258,40.725,327.661,40.725,214.577c0-118.398,95.981-214.379,214.379-214.379   s214.379,95.981,214.379,214.379c0,113.085-179.007,267.682-199.423,284.932L255.104,512.171z M255.104,46.553   c-92.753,0.105-167.918,75.27-168.023,168.023c0,71.042,110.132,184.53,168.023,236.473   c57.892-51.964,168.023-165.517,168.023-236.473C423.022,121.823,347.858,46.659,255.104,46.553z" fill="currentColor" />
-                                            <path d="M255.104,299.555c-46.932,0-84.978-38.046-84.978-84.978s38.046-84.978,84.978-84.978s84.978,38.046,84.978,84.978   S302.037,299.555,255.104,299.555z M255.104,172.087c-23.466,0-42.489,19.023-42.489,42.489s19.023,42.489,42.489,42.489   s42.489-19.023,42.489-42.489S278.571,172.087,255.104,172.087z" fill="currentColor" />
-                                        </g>
-                                    </svg>
-                                </div>
-                                {errors?.state && <p className="text-xs text-red-600 mt-1">{errors?.state}</p>}
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="city" className="text-gray-700 text-sm font-semibold dark:text-gray-400">City/District Name</label>
-                                <div className="relative mt-1">
-                                    <input type="text" name="city" className={`peer text-sm w-full pr-3 py-3 pl-10 border-1 ${errors?.city ? "border-red-600" : "border-gray-300"} rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} id="city" placeholder="City Name" value={data?.city} onChange={(e) => dispatch(e)} />
-                                    <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 512 512" style={{ enableBackground: "new 0 0 512 512" }} xmlSpace="preserve" width="21" height="19" className={`${errors?.city ? "text-red-600" : "text-gray-300"} absolute top-1/2 left-3 -translate-y-1/2 peer-focus:text-teal dark:text-gray-600`}>
-                                        <g id="_01_align_center">
-                                            <path d="M255.104,512.171l-14.871-12.747C219.732,482.258,40.725,327.661,40.725,214.577c0-118.398,95.981-214.379,214.379-214.379   s214.379,95.981,214.379,214.379c0,113.085-179.007,267.682-199.423,284.932L255.104,512.171z M255.104,46.553   c-92.753,0.105-167.918,75.27-168.023,168.023c0,71.042,110.132,184.53,168.023,236.473   c57.892-51.964,168.023-165.517,168.023-236.473C423.022,121.823,347.858,46.659,255.104,46.553z" fill="currentColor" />
-                                            <path d="M255.104,299.555c-46.932,0-84.978-38.046-84.978-84.978s38.046-84.978,84.978-84.978s84.978,38.046,84.978,84.978   S302.037,299.555,255.104,299.555z M255.104,172.087c-23.466,0-42.489,19.023-42.489,42.489s19.023,42.489,42.489,42.489   s42.489-19.023,42.489-42.489S278.571,172.087,255.104,172.087z" fill="currentColor" />
-                                        </g>
-                                    </svg>
-                                </div>
-                                {errors?.city && <p className="text-xs text-red-600 mt-1">{errors?.city}</p>}
-                            </div>
+                            <LocationFields
+                                data={data}
+                                countries={countries}
+                                statesByCountry={statesByCountry}
+                                citiesByState={citiesByState}
+                                onChange={handleLocationChange}
+                                fieldLabels={{
+                                    country: "Country",
+                                    state: "State",
+                                    city: "City"
+                                }}
+                            />
                             <div className="form-group">
                                 <label htmlFor="pincode" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Pincode</label>
                                 <div className="relative mt-1">
@@ -621,17 +748,17 @@ function Profile() {
                                 <h4 className="text-2xl mt-4 text-gray-700 font-semibold mb-0">Professional Details</h4>
                             </div>
                             <div className="form-group">
-                                <label htmlFor="degree" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Degree</label>
+                                <label htmlFor="degreeValues" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Degree</label>
                                 <div className="relative mt-1">
-                                    <div className={`flex flex-wrap gap-1 min-h-11 text-sm w-full p-3 border-1 ${errors?.degree ? "border-red-600" : "border-gray-300"} rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`}>
-                                        {data?.degree?.length > 0 &&
-                                            data?.degree?.map((d) => (
-                                                <div className="bg-teal pl-1 py-1 pr-1 text-xs text-white flex gap-1" key={d}>{d} 
-                                                    <button className="bg-white text-gray-900 font-bold px-1 cursor-pointer" onClick={() => handleDegree({type : false, value : d})}>X</button>
+                                    <div className={`flex flex-wrap gap-1 min-h-11 text-sm w-full p-3 border-1 ${errors?.degreeValues ? "border-red-600" : "border-gray-300"} rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`}>
+                                        {data?.degreeValues?.length > 0 &&
+                                            data?.degreeValues?.map((d) => (
+                                                <div className="bg-teal pl-1 py-1 pr-1 text-xs text-white flex gap-1" key={d?.degree}>{d?.degree} 
+                                                    <button className="bg-white text-gray-900 font-bold px-1 cursor-pointer" type="button" onClick={() => handleDegree({type : false, value : d.degree})}>X</button>
                                                 </div>
                                             ))
                                         }
-                                        <input type="text" className="w-full min-w-5 flex-1 border-0 outline-none text-sm" placeholder="Select..." value={degreeSearch} onChange={(e) => setDegreeSearch(e.target.value)} onFocus={() => setDegreeOpen(true)} onBlur={() => setDegreeOpen(false)} />
+                                        <input type="text" className="w-full min-w-5 flex-1 border-0 outline-none text-sm" placeholder="Select..." value={degreeSearch} id="degreeValues" onChange={(e) => setDegreeSearch(e.target.value)} onFocus={() => setDegreeOpen(true)} onBlur={() => setDegreeOpen(false)} />
                                     </div>
                                     {degreeOpen &&
                                         <ul className="absolute top-full left-0 bg-white w-full text-sm shadow-sm border border-gray-200 rounded-lg z-9 max-h-40 overflow-y-auto">
@@ -644,35 +771,90 @@ function Profile() {
                                     }
                                 </div>
                             </div>
-                            {data?.degree?.length > 0 ?
-                                data?.degree?.map((deg, index) => (
+                            {data?.degreeValues?.length > 0 ?
+                                data?.degreeValues?.map((deg, index) => (
                                     <div className="col-span-3" key={index}>
-                                        <div className="text-sm font-semibol text-white bg-teal w-max pl-4 gap-2 py-[0.5px] pr-[0.5px] flex">{index+1}. {deg} <button className="bg-white text-gray-900 font-bold px-1 cursor-pointer" onClick={() => handleDegree({type : false, value : deg})}>X</button></div>
+                                        <div className="text-sm font-semibol text-white bg-teal w-max pl-4 gap-2 py-[0.5px] pr-[0.5px] flex">{index+1}. {deg?.degree} <button className="bg-white text-gray-900 font-bold px-1 cursor-pointer" type="button" onClick={() => handleDegree({type : false, value : deg?.degree})}>X</button></div>
                                         <div className="grid grid-cols-4 gap-2 border border-gray-200 p-3 mb-2">
                                             <div className="form-group">
                                                 <label htmlFor="college" className="text-gray-700 text-sm font-semibold dark:text-gray-400">College</label>
-                                                <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="College" />
+                                                <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg mt-1 appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="College" value={deg.college} onChange={(e) => handleDegreeValueChange(deg.degree, "college", e.target.value)} />
                                             </div>
                                             <div className="form-group">
                                                 <label htmlFor="university" className="text-gray-700 text-sm font-semibold dark:text-gray-400">University</label>
-                                                <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="University" />
+                                                <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg mt-1 appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="University" value={deg.university} onChange={(e) => handleDegreeValueChange(deg.degree, "university", e.target.value)} />
                                             </div>
                                             <div className="form-group">
                                                 <label htmlFor="country" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Country</label>
-                                                <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Country" />
+                                                <CountrySelect name={`country_${deg?.degree}`} value={deg.country} onChange={(e) => handleDegreeValueChange(deg.degree, "country", e)} />
                                             </div>
                                             <div className="form-group">
                                                 <label htmlFor="year" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Year of passing</label>
-                                                <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Year of passing" />
+                                                <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg mt-1 appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Year of passing" value={deg.year} onChange={(e) => handleDegreeValueChange(deg.degree, "year", e.target.value)} />
                                             </div>
                                         </div>
                                     </div>
                                 )) : 
                                 <div className="col-span-2"></div>
                             }
-
+                            <div className="col-span-full">
+                                <h4 className="text-gray-700 text-sm font-semibold dark:text-gray-400">Registration No. (SMC/NMC/MCI)</h4>
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="registration_no" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Registration No.</label>
+                                <input type="number" name="registration_no" id="registration_no" value={data?.registration_no} className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none mt-1 focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Registration Number" onChange={(e) => dispatch(e)} />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="registration_name" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Name of SMC/NMC/MCI</label>
+                                <input type="text" name="registration_name" id="registration_name" value={data?.registration_name} className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none mt-1 focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Name of Council" onChange={(e) => dispatch(e)} />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="registration_date" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Registration date</label>
+                                <div className="relative mt-1" ref={(e) => wrapperRef.current[1] = e}>
+                                    <Flatpickr
+                                        value={data?.registration_date}
+                                        name="registration_date"
+                                        id="registration_date"
+                                        onChange={(_, dateStr) =>
+                                            dispatch({
+                                                target: {
+                                                    name: "registration_date",
+                                                    value: dateStr,
+                                                },
+                                            })
+                                        }
+                                        options={{
+                                            dateFormat: "d-m-Y",
+                                            monthSelectorType: "static",
+                                            disableMobile: true,
+                                            onReady: (_, __, fp) => {
+                                                if (wrapperRef.current[1]) {
+                                                    wrapperRef.current[1].appendChild(fp.calendarContainer);
+                                                }
+                                            },
+                                        }}
+                                        className={`text-sm border-1 ${errors?.dob ? "border-red-600" : "border-gray-300"} p-3 rounded-lg outline-none w-full focus:outline-none focus:border-teal`}
+                                    />
+                                    <span className="absolute bg-white text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
+                                        <svg className="size-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" ><path fillRule="evenodd" clipRule="evenodd" d="M8 2C8.41421 2 8.75 2.33579 8.75 2.75V3.75H15.25V2.75C15.25 2.33579 15.5858 2 16 2C16.4142 2 16.75 2.33579 16.75 2.75V3.75H18.5C19.7426 3.75 20.75 4.75736 20.75 6V9V19C20.75 20.2426 19.7426 21.25 18.5 21.25H5.5C4.25736 21.25 3.25 20.2426 3.25 19V9V6C3.25 4.75736 4.25736 3.75 5.5 3.75H7.25V2.75C7.25 2.33579 7.58579 2 8 2ZM8 5.25H5.5C5.08579 5.25 4.75 5.58579 4.75 6V8.25H19.25V6C19.25 5.58579 18.9142 5.25 18.5 5.25H16H8ZM19.25 9.75H4.75V19C4.75 19.4142 5.08579 19.75 5.5 19.75H18.5C18.9142 19.75 19.25 19.4142 19.25 19V9.75Z" fill="currentColor"></path></svg>
+                                    </span>
+                                </div>
+                                
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="registration_valid" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Registration Valid up to</label>
+                                <input type="number" name="registration_valid" id="registration_valid" value={data?.registration_valid} className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none mt-1 focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Validity of registration" onChange={(e) => dispatch(e)} />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="registration_country" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Registration Country</label>
+                                <CountrySelect name="registration_country" value={data?.registration_country} onChange={(value) => handleCountry("registration_country", value)} />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="registration_certificate" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Registration certificate</label>
+                                <input type="file" name="registration_certificate" id="registration_certificate" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none mt-1 focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" onChange={(e) => handleFileChange(e)} />
+                            </div>
                             <div className="form-group col-span-3">
-                                <label htmlFor="Practice" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Employed / Solo Pracititions</label>
+                                <label htmlFor="solo" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Employed / Solo Pracititions</label>
                                <div className="flex gap-3 mt-3">
                                     <label htmlFor="solo" className="flex items-center gap-2 text-base font-semibold text-gray-700 cursor-pointer">
                                         Solo 
@@ -694,72 +876,75 @@ function Profile() {
                                     </label>
                                 </div>
                             </div>
+
                             {data?.practice == "solo" ? 
                                 <>
                                     <div className="form-group">
-                                        <label htmlFor="medical" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Medical Name</label>
-                                        <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Medical name" />
+                                        <label htmlFor="medical_name" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Medical Name</label>
+                                        <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none mt-1 focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Medical name" value={data?.medical_name} name="medical_name" id="medical_name" onChange={(e) => dispatch(e)} />
                                     </div>
+                                    <LocationFields
+                                        prefix="medical"
+                                        data={data}
+                                        countries={countries}
+                                        statesByCountry={statesByCountry}
+                                        citiesByState={citiesByState}
+                                        onChange={handleLocationChange}
+                                        fieldLabels={{
+                                            country: "Country",
+                                            state: "State",
+                                            city: "City"
+                                        }}
+                                    />
                                     <div className="form-group">
-                                        <label htmlFor="mcountry" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Country</label>
-                                        <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Country" />
-                                    </div>
-                                    <div className="form-group">
-                                        <label htmlFor="mstate" className="text-gray-700 text-sm font-semibold dark:text-gray-400">State</label>
-                                        <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="State" />
-                                    </div>
-                                    <div className="form-group">
-                                        <label htmlFor="ncity" className="text-gray-700 text-sm font-semibold dark:text-gray-400">City/District</label>
-                                        <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="City/district" />
-                                    </div>
-                                    <div className="form-group">
-                                        <label htmlFor="mpincode" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Pincode</label>
-                                        <input type="number" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Pincode" />
+                                        <label htmlFor="medical_pincode" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Pincode</label>
+                                        <input type="number" className="text-sm w-full p-3 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal mt-1 placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Pincode" name="medical_pincode" id="medical_pincode" value={data?.medical_pincode} onChange={(e) => dispatch(e)} />
                                     </div>
                                     <div className="form-group"></div>
                                 </> : 
                                 <>
                                     <div className="form-group">
-                                        <label htmlFor="area" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Govt / Private / NGO</label>
-                                        <select className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300">
+                                        <label htmlFor="service_type" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Govt / Private / NGO</label>
+                                        <select className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg mt-1 focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" name="service_type" id="service_type" defaultValue={data?.service_type} onChange={(e) => dispatch(e)}>
                                             <option value="govt">Govt.</option>    
                                             <option value="private">Private</option>    
                                             <option value="ngo">NGO</option>    
                                         </select>
                                     </div>
                                     <div className="form-group">
-                                        <label htmlFor="name" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Name</label>
-                                        <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="name" />
+                                        <label htmlFor="org_name" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Name</label>
+                                        <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 mt-1 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="name" name="org_name" id="org_name" value={data?.org_name} onChange={(e) => dispatch(e)} />
                                     </div>
+                                    <LocationFields
+                                        prefix="org"
+                                        data={data}
+                                        countries={countries}
+                                        statesByCountry={statesByCountry}
+                                        citiesByState={citiesByState}
+                                        onChange={handleLocationChange}
+                                        fieldLabels={{
+                                            country: "Country",
+                                            state: "State",
+                                            city: "City"
+                                        }}
+                                    />
                                     <div className="form-group">
-                                        <label htmlFor="mcountry" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Country</label>
-                                        <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Country" />
-                                    </div>
-                                    <div className="form-group">
-                                        <label htmlFor="mstate" className="text-gray-700 text-sm font-semibold dark:text-gray-400">State</label>
-                                        <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="State" />
-                                    </div>
-                                    <div className="form-group">
-                                        <label htmlFor="city" className="text-gray-700 text-sm font-semibold dark:text-gray-400">City</label>
-                                        <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="City" />
-                                    </div>
-                                    <div className="form-group">
-                                        <label htmlFor="mpincode" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Pincode</label>
-                                        <input type="number" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Pincode" />
+                                        <label htmlFor="org_pincode" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Pincode</label>
+                                        <input type="number" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none mt-1 focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Pincode" id="org_pincode" name="org_pincode" value={data?.org_pincode} onChange={(e) => dispatch(e)} />
                                     </div>
                                 </>
                             }
                             <div className="form-group">
                                 <label htmlFor="interest" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Area of interest</label>
-                                <div className={`flex flex-wrap gap-1 min-h-11 text-sm w-full p-3 border-1 ${errors?.interest ? "border-red-600" : "border-gray-300"} rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`}>
+                                <div className={`flex flex-wrap gap-1 min-h-11 text-sm w-full p-3 mt-1 border-1 ${errors?.interest ? "border-red-600" : "border-gray-300"} rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`}>
                                     {data?.interest?.length > 0 &&
                                         data?.interest?.map((d) => (
                                             <div className="bg-teal pl-1 py-1 pr-1 text-xs text-white flex gap-1" key={d}>{d}
-                                                <button className="bg-white text-gray-900 font-bold px-1 cursor-pointer" onClick={() => handleInterest({ type: false, value: d })}>X</button>
+                                                <button className="bg-white text-gray-900 font-bold px-1 cursor-pointer" type="button" onClick={() => handleInterest({ type: false, value: d })}>X</button>
                                             </div>
                                         ))
                                     }
-                                    <input type="text" className="w-full min-w-5 flex-1 border-0 outline-none text-sm" placeholder="Select..." value={interestSearch} onChange={(e) => setInterestSearch(e.target.value)} 
+                                    <input type="text" className="w-full min-w-5 flex-1 border-0 outline-none text-sm" placeholder="Select..." id="interest" value={interestSearch} onChange={(e) => setInterestSearch(e.target.value)} 
                                         onKeyDown={(e) => {
                                             if (e.key === "Enter" && interestSearch.trim() !== "") {
                                             e.preventDefault();
@@ -774,7 +959,7 @@ function Profile() {
                             </div>
                             <div className="form-group">
                                 <label htmlFor="experience" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Year's of experience</label>
-                                <input type="number" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Year's of experience" name="experience" id="experience" value={data?.experience} onChange={(e) => dispatch(e)} />
+                                <input type="number" className="text-sm w-full p-3 pr-8 border-1 mt-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Year's of experience" name="experience" id="experience" value={data?.experience} onChange={(e) => dispatch(e)} />
                             </div>
                             <div className="form-group col-span-3 my-2">
                                 <div className="flex gap-2">
@@ -784,98 +969,9 @@ function Profile() {
                                             <svg className="absolute transform -translate-x-1/2 -translate-y-1/2 pointer-events-none top-1/2 left-1/2" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M11.6666 3.5L5.24992 9.91667L2.33325 7" stroke="white" strokeWidth="1.94437" strokeLinecap="round" strokeLinejoin="round"></path></svg>
                                         }
                                     </div>
-                                    <label htmlFor="confirm" className="text-sm text-gray-700">I aggree to terms & conditions and Privacy policy</label>
+                                    <label htmlFor="confirm" className="text-sm text-gray-700 font-semibold cursor-pointer">I aggree to terms & conditions and Privacy policy</label>
                                 </div>
                             </div>
-
-                            {/* <div className="form-group">
-                                <label htmlFor="specility" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Specility</label>
-                                <div className="relative mt-1">
-                                    <select id="specility" name="specility" className={`text-sm w-full p-3 pr-8 border-1 ${errors?.specility ? "border-red-600" : "border-gray-300"} rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} value={data?.specility} onChange={(e) => dispatch(e)}>
-                                        <option value="">Select</option>
-                                        <option value="medicine">Medicine</option>
-                                        <option value="surgen">Surgen</option>
-                                    </select>
-                                    <svg className="absolute text-gray-700 dark:text-gray-400 right-3 top-1/2 -translate-y-1/2 pointer-events-none" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.79175 8.02075L10.0001 13.2291L15.2084 8.02075" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path></svg>
-                                </div>
-                                {errors?.specility && <p className="text-xs text-red-600 mt-1">{errors?.specility}</p>}
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="smcRegistration" className="text-gray-700 text-sm font-semibold dark:text-gray-400">SMC/MCI Registration Number</label>
-                                <div className="relative mt-1">
-                                    <input type="number" name="smcRegistration" className={`peer text-sm w-full pr-3 py-3 pl-10 border-1 ${errors?.smcRegistration ? "border-red-600" : "border-gray-300"} rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} id="smcRegistration" placeholder="SMC/MCI Registration Number" value={data?.smcRegistration} onChange={(e) => dispatch(e)} />
-                                    <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" viewBox="0 0 24 24" data-name="Layer 1" width="21" height="19" className={`${errors?.smcRegistration ? "text-red-600" : "text-gray-300"} absolute top-1/2 left-3 -translate-y-1/2 peer-focus:text-teal dark:text-gray-600`}><path d="m5 9.5c0-1.381 1.119-2.5 2.5-2.5s2.5 1.119 2.5 2.5-1.119 2.5-2.5 2.5-2.5-1.119-2.5-2.5zm19 7.5v-10c0-2.757-2.243-5-5-5h-14c-2.757 0-5 2.243-5 5v10c0 2.757 2.243 5 5 5h14c2.757 0 5-2.243 5-5zm-5-13c1.654 0 3 1.346 3 3v10c0 1.654-1.346 3-3 3h-14c-1.654 0-3-1.346-3-3v-10c0-1.654 1.346-3 3-3zm1 4c0-.552-.447-1-1-1h-5c-.553 0-1 .448-1 1s.447 1 1 1h5c.553 0 1-.448 1-1zm0 4c0-.552-.447-1-1-1h-5c-.553 0-1 .448-1 1s.447 1 1 1h5c.553 0 1-.448 1-1zm-2 4c0-.553-.447-1-1-1h-3c-.553 0-1 .447-1 1s.447 1 1 1h3c.553 0 1-.447 1-1zm-7.797.979c.541-.112.889-.642.776-1.183-.335-1.62-1.799-2.797-3.479-2.797s-3.144 1.177-3.479 2.797c-.112.541.235 1.07.776 1.183.538.107 1.07-.236 1.182-.776.145-.697.784-1.203 1.521-1.203s1.376.506 1.521 1.203c.109.544.654.889 1.182.776z" fill="currentColor" /></svg>
-                                </div>
-                                {errors?.smcRegistration && <p className="text-xs text-red-600 mt-1">{errors?.smcRegistration}</p>}
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="designation" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Designation</label>
-                                <div className="relative mt-1">
-                                    <input type="text" name="designation" className={`peer text-sm w-full pr-3 py-3 pl-10 border-1 ${errors?.designation ? "border-red-600" : "border-gray-300"} rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} id="designation" placeholder="Designation" value={data?.designation} onChange={(e) => dispatch(e)} />
-                                    <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" viewBox="0 0 24 24" data-name="Layer 1" width="21" height="19" className={`${errors?.designation ? "text-red-600" : "text-gray-300"} absolute top-1/2 left-3 -translate-y-1/2 peer-focus:text-teal dark:text-gray-600`}><path d="m24 9.5a3.5 3.5 0 1 0 -5 3.149v3.351a5 5 0 0 1 -10 0v-.151a7.513 7.513 0 0 0 6-7.349v-3a5.506 5.506 0 0 0 -5.5-5.5 1.5 1.5 0 0 0 0 3 2.5 2.5 0 0 1 2.5 2.5v3a4.5 4.5 0 0 1 -9 0v-3a2.5 2.5 0 0 1 2.5-2.5 1.5 1.5 0 0 0 0-3 5.506 5.506 0 0 0 -5.5 5.5v3a7.513 7.513 0 0 0 6 7.349v.151a8 8 0 0 0 16 0v-3.351a3.5 3.5 0 0 0 2-3.149z" fill="currentColor" /></svg>
-                                </div>
-                                {errors?.designation && <p className="text-xs text-red-600 mt-1">{errors?.designation}</p>}
-                            </div>
-                            <div className="form-group lg:col-span-2">
-                                <h6 className="text-sm font-semibold mb-2 text-gray-700">Upload registration certificate (PDF/JPG)</h6>
-                                <label htmlFor="dropFile" className={`group text-gray-600 text-sm font-semibold block w-full min-h-40 border-2 border-dashed rounded-xl text-center content-center cursor-pointer duration-200 ${isDragging ? "border-[#00a874] bg-[#e1fdf0]" : "border-gray-300 hover:border-gray-600 "} ${errors?.registration_certificate ? "border-red-600" : ""}`}
-                                    data-name="registration_certificate"
-                                    onDrop={handleDrop}
-                                    onDragOver={handleDragOver}
-                                    onDragLeave={handleDragLeave}
-                                >
-                                    <input type="file" accept=".jpg,.jpeg,.pdf" name="registration_certificate" className="text-gray-500 text-sm w-[1px] h-[1px] hidden border-1 border-gray-300 rounded-lg  hover:file:bg-gray-100 focus:outline-none focus:border-teal dark:border-gray-600 dark:text-gray-300" id="dropFile" onChange={handleFileChange} key={data.registration_certificate ? "hasFile" : "noFile"} />
-                                    <svg className="fill-current w-8 h-8 mx-auto duration-200 mb-3 group-hover:w-9 group-hover:h-9" viewBox="0 0 29 28" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" clipRule="evenodd" d="M14.5019 3.91699C14.2852 3.91699 14.0899 4.00891 13.953 4.15589L8.57363 9.53186C8.28065 9.82466 8.2805 10.2995 8.5733 10.5925C8.8661 10.8855 9.34097 10.8857 9.63396 10.5929L13.7519 6.47752V18.667C13.7519 19.0812 14.0877 19.417 14.5019 19.417C14.9161 19.417 15.2519 19.0812 15.2519 18.667V6.48234L19.3653 10.5929C19.6583 10.8857 20.1332 10.8855 20.426 10.5925C20.7188 10.2995 20.7186 9.82463 20.4256 9.53184L15.0838 4.19378C14.9463 4.02488 14.7367 3.91699 14.5019 3.91699ZM5.91626 18.667C5.91626 18.2528 5.58047 17.917 5.16626 17.917C4.75205 17.917 4.41626 18.2528 4.41626 18.667V21.8337C4.41626 23.0763 5.42362 24.0837 6.66626 24.0837H22.3339C23.5766 24.0837 24.5839 23.0763 24.5839 21.8337V18.667C24.5839 18.2528 24.2482 17.917 23.8339 17.917C23.4197 17.917 23.0839 18.2528 23.0839 18.667V21.8337C23.0839 22.2479 22.7482 22.5837 22.3339 22.5837H6.66626C6.25205 22.5837 5.91626 22.2479 5.91626 21.8337V18.667Z"></path></svg>
-                                    <h4 className="text-base font-semibold text-gray-700 mb-2">{isDragging ? "Drop File Here" : "Drag & Drop Files Here"}</h4>
-                                    <p className="text-xs text-gray-500 font-[400] max-w-3/5 mx-auto">Drag and drop your PNG, JPG, WebP, SVG images here or browse</p>
-                                </label>
-                                {errors?.registration_certificate && <p className="text-xs text-red-600 mt-1">{errors?.registration_certificate}</p>}
-                                {data?.registration_certificate && (() => {
-                                    const file = data.registration_certificate;
-
-                                    const isString = typeof file === "string";
-
-                                    const isBase64 = isString && file.startsWith("data:image");
-                                    const isURL = isString && file.startsWith("http");
-
-                                    const isImageFile = !isString && file?.type?.startsWith("image");
-                                    const isPDF = (!isString && file?.type === "application/pdf") || (isString && file?.includes(".pdf"));
-
-                                    return (
-                                        <div className="mt-4">
-                                            <a href={`${data?.registration_certificate}`} className="rounded-xl w-16 h-16 flex items-center justify-center border border-gray-200 p-2" target="_blank">
-                                                {(isBase64 || isURL || isImageFile) ? (
-                                                    <img
-                                                    src={
-                                                        isBase64 || isURL
-                                                        ? file
-                                                        : URL.createObjectURL(file)
-                                                    }
-                                                    className="w-full h-full object-cover rounded-lg"
-                                                    />
-                                                ) : isPDF ? (
-                                                    <img
-                                                    src="/assets/images/PDF_icon.png"
-                                                    className="w-10 h-10 object-contain"
-                                                    />
-                                                ) : (
-                                                    <div className="text-xs">File</div>
-                                                )}
-                                            </a>
-                                        </div>
-                                    );
-                                })()}
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="image_url" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Profile image</label>
-                                <div className="relative mt-1">
-                                    <input type="file" name="image_url" id="image_url" className={`peer text-sm w-full pr-3 py-3 pl-10 border-1 ${errors?.image_url ? "border-red-600" : "border-gray-300"} rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} onChange={handleFileChange} />
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="21" height="19" viewBox="0 0 21 19" fill="none" className={`${errors?.first_name ? "text-red-600" : "text-gray-300"} absolute top-1/2 left-3 -translate-y-1/2 peer-focus:text-teal dark:text-gray-600`}>
-                                        <path fillRule="evenodd" clipRule="evenodd" d="M8.0254 6.17845C8.0254 4.90629 9.05669 3.875 10.3289 3.875C11.601 3.875 12.6323 4.90629 12.6323 6.17845C12.6323 7.45061 11.601 8.48191 10.3289 8.48191C9.05669 8.48191 8.0254 7.45061 8.0254 6.17845ZM10.3289 2.375C8.22827 2.375 6.5254 4.07786 6.5254 6.17845C6.5254 8.27904 8.22827 9.98191 10.3289 9.98191C12.4294 9.98191 14.1323 8.27904 14.1323 6.17845C14.1323 4.07786 12.4294 2.375 10.3289 2.375ZM8.92286 11.03C5.7669 11.03 3.2085 13.5884 3.2085 16.7444V17.0333C3.2085 17.4475 3.54428 17.7833 3.9585 17.7833C4.37271 17.7833 4.7085 17.4475 4.7085 17.0333V16.7444C4.7085 14.4169 6.59533 12.53 8.92286 12.53H11.736C14.0635 12.53 15.9504 14.4169 15.9504 16.7444V17.0333C15.9504 17.4475 16.2861 17.7833 16.7004 17.7833C17.1146 17.7833 17.4504 17.4475 17.4504 17.0333V16.7444C17.4504 13.5884 14.8919 11.03 11.736 11.03H8.92286Z" fill="currentColor"></path>
-                                    </svg>
-                                </div>
-                                {errors?.image_url && <p className="text-xs text-red-600 mt-1">{errors?.image_url}</p>}
-                            </div> */}
                         </div>
                         <button className={`text-center px-10 py-3 flex items-center gap-0 bg-teal w-max text-white rounded-xl mt-4 ${loading ? "opacity-80 cursor-not-allowed" : "cursor-pointer hover:bg-teal-dark"} mt-3`} disabled={loading}>
                             {loading ?
