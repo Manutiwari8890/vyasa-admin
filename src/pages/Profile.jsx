@@ -6,7 +6,7 @@ import { CountrySelect } from "../Component/CountrySelect";
 import LocationFields from "../Component/LocationFields";
 
 const initial = {
-    title: "", first_name: "", middle_name: "", last_name: "", gender: "male", phone: "", samePhone : false, whatsapp_number: "", email : "", official_email: "", nationality : "", language:[], dob: new Date().toISOString().split("T")[0], country: null, state: null, city: null, pincode: "", address1: "", degreeValues : [], practice : "solo", medical_name : "", medical_country : "", medical_state : "", medical_city : "", medical_pincode : "",  designation: "",  image_url : "", experience : "", interest : [], confirm : false, service_type : "", org_name : "", org_country : "", org_state : "", org_city : "", org_pincode : "", registration_no: "", registration_name : "", registration_date : new Date().toISOString().split("T")[0], registration_valid : "", registration_country : "", registration_certificate : "" 
+    title: "", first_name: "", middle_name: "", last_name: "", gender: "male", phone: "", samePhone : false, whatsapp_number: "", email : "", official_email: "", nationality : "", language:[], dob: new Date().toISOString().split("T")[0], country: null, state: null, city: null, pincode: "", address1: "", degreeValues : [], practice : "solo", clinic_name : "", clinic_country : "", clinic_state : "", clinic_city : "", clinic_pincode : "",  designation: "",  image_url : "", experience : "", interest : [], confirm : false, service_type : "", org_name : "", org_country : "", org_state : "", org_city : "", org_pincode : "", registration_no: "", registration_name : "", registration_date : new Date().toISOString().split("T")[0], registration_valid : "", registration_country : "", registration_certificate : "" 
 }
 
 const reducer = (prev, e) => {
@@ -466,23 +466,23 @@ function Profile() {
     return (
         <>
             <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold text-gray-700">Profile</h2>
+                <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300">Profile</h2>
                 <nav className="breadcrumb">
                     <ol className="flex items-center gap-1">
                         <li>
-                            <Link to="/" className="flex gap-1 text-gray-500 items-center text-sm hover:text-gray-600">
+                            <Link to="/" className="flex gap-1 text-gray-500 items-center text-sm hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300">
                                 Home
                                 <svg className="w-4 h-4 stroke-current" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.0765 12.667L10.2432 8.50033L6.0765 4.33366" stroke="" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"></path></svg>
                             </Link>
-                        </li>
-                        <li className="text-sm text-gray-700">
+                        </li> 
+                        <li className="text-sm text-gray-700 dark:text-gray-300">
                             Profile
                         </li>
                     </ol>
                 </nav>
             </div>
-            <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-xs">
-                <h4 className="text-base font-semibold text-gray-700 mb-5">Profile</h4>
+            <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-xs dark:bg-white/3 dark:border-gray-800">
+                {/* <h4 className="text-base font-semibold text-gray-700 mb-5">Profile</h4>
                 <div className="p-5 bg-white border border-gray-200 rounded-2xl flex items-center justify-between mb-6">
                     <div className="flex gap-5 items-center">
                         <div className="w-30 h-30 rounded-full overflow-hidden">
@@ -502,12 +502,12 @@ function Profile() {
                         </Link>
                     </div>
 
-                </div>
-                <div className="p-5 bg-white border border-gray-200 rounded-2xl mb-6">
+                </div> */}
+                <div className="p-5 bg-white border border-gray-200 rounded-2xl mb-6 dark:bg-transparent dark:border-gray-800">
                     <form onSubmit={handleSubmit}>
                         <div className="grid grid-cols-7 w-full gap-4 mb-6">
                             <div className="col-span-4 lg:col-span-10">
-                                <h4 className="text-2xl text-gray-700 font-semibold mb-1 lg:mb-6">Personl Information</h4>
+                                <h4 className="text-2xl text-gray-700 font-semibold mb-1 lg:mb-6 dark:text-white/90">Personl Information</h4>
                             </div>
                             <div className="form-group">
                                 <label htmlFor="select" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Title</label>
@@ -576,9 +576,9 @@ function Profile() {
                                                 }
                                             },
                                         }}
-                                        className={`text-sm border-1 ${errors?.dob ? "border-red-600" : "border-gray-300"} p-3 rounded-lg outline-none w-full focus:outline-none focus:border-teal`}
+                                        className={`text-sm border-1 ${errors?.dob ? "border-red-600" : "border-gray-300"} p-3 rounded-lg outline-none w-full focus:outline-none focus:border-teal dark:text-gray-300 dark:border-gray-600`}
                                     />
-                                    <span className="absolute bg-white text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
+                                    <span className="absolute bg-white text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400 dark:bg-transparent">
                                         <svg className="size-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" ><path fillRule="evenodd" clipRule="evenodd" d="M8 2C8.41421 2 8.75 2.33579 8.75 2.75V3.75H15.25V2.75C15.25 2.33579 15.5858 2 16 2C16.4142 2 16.75 2.33579 16.75 2.75V3.75H18.5C19.7426 3.75 20.75 4.75736 20.75 6V9V19C20.75 20.2426 19.7426 21.25 18.5 21.25H5.5C4.25736 21.25 3.25 20.2426 3.25 19V9V6C3.25 4.75736 4.25736 3.75 5.5 3.75H7.25V2.75C7.25 2.33579 7.58579 2 8 2ZM8 5.25H5.5C5.08579 5.25 4.75 5.58579 4.75 6V8.25H19.25V6C19.25 5.58579 18.9142 5.25 18.5 5.25H16H8ZM19.25 9.75H4.75V19C4.75 19.4142 5.08579 19.75 5.5 19.75H18.5C18.9142 19.75 19.25 19.4142 19.25 19V9.75Z" fill="currentColor"></path></svg>
                                     </span>
                                 </div>
@@ -587,29 +587,29 @@ function Profile() {
                             <div className="form-group">
                                 <label htmlFor="male" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Gender</label>
                                 <div className="flex gap-3 mt-3">
-                                    <label htmlFor="male" className="flex items-center gap-2 text-base text-gray-700 cursor-pointer">
+                                    <label htmlFor="male" className="flex items-center gap-2 text-base text-gray-700 cursor-pointer dark:text-gray-400">
                                         Male
                                         <span className="relative content-center -mb-2">
                                             <input type="radio" className="sr-only" name="gender" value="male" id="male" checked={data?.gender==="male"} onChange={(e) => dispatch(e)} />
-                                            <span className={`w-5 h-5 border border-gray-300 rounded-full flex justify-center items-center -mt-2 ${data?.gender==="male" ? "bg-teal" : ""}`}>
+                                            <span className={`w-5 h-5 border border-gray-300 rounded-full flex justify-center items-center -mt-2 dark:border-gray-600 ${data?.gender==="male" ? "bg-teal" : ""}`}>
                                                 <span className="bg-white w-2 h-2 rounded-full inline-block"></span>
                                             </span>
                                         </span>
                                     </label>
-                                    <label htmlFor="female" className="flex items-center gap-2 text-base text-gray-700 cursor-pointer">
+                                    <label htmlFor="female" className="flex items-center gap-2 text-base text-gray-700 cursor-pointer dark:text-gray-400">
                                         Female
                                         <span className="relative content-center -mb-2">
                                             <input type="radio" className="sr-only" name="gender" value="female" id="female" checked={data?.gender==="female"} onChange={(e) => dispatch(e)} />
-                                            <span className={`w-5 h-5 border border-gray-300 rounded-full flex justify-center items-center -mt-2 ${data?.gender==="female" ? "bg-teal" : ""}`}>
+                                            <span className={`w-5 h-5 border border-gray-300 rounded-full flex justify-center items-center -mt-2 dark:border-gray-600 ${data?.gender==="female" ? "bg-teal" : ""}`}>
                                                 <span className="bg-white w-2 h-2 rounded-full inline-block"></span>
                                             </span>
                                         </span>
                                     </label>
-                                    <label htmlFor="other" className="flex items-center gap-2 text-base text-gray-700 cursor-pointer">
+                                    <label htmlFor="other" className="flex items-center gap-2 text-base text-gray-700 cursor-pointer dark:text-gray-400">
                                         Other
                                         <span className="relative content-center -mb-2">
                                             <input type="radio" className="sr-only" name="gender" value="other" id="other" checked={data?.gender==="other"} onChange={(e) => dispatch(e)} />
-                                            <span className={`w-5 h-5 border border-gray-300 rounded-full flex justify-center items-center -mt-2 ${data?.gender==="other" ? "bg-teal" : ""}`}>
+                                            <span className={`w-5 h-5 border border-gray-300 rounded-full flex justify-center items-center -mt-2 dark:border-gray-600 ${data?.gender==="other" ? "bg-teal" : ""}`}>
                                                 <span className="bg-white w-2 h-2 rounded-full inline-block"></span>
                                             </span>
                                         </span>
@@ -634,11 +634,11 @@ function Profile() {
                                         <input type="text" className="w-full min-w-5 flex-1 border-0 outline-none text-sm" placeholder="Select..." value={languageSearch} id="language" onChange={(e) => setLangSearch(e.target.value)} onFocus={() => setLangOpen(true)} onBlur={() => setLangOpen(false)} />
                                     </div>
                                     {langOpen &&
-                                        <ul className="absolute top-full left-0 bg-white w-full text-sm shadow-sm border border-gray-200 rounded-lg z-9 max-h-40 overflow-y-auto">
+                                        <ul className="absolute top-full left-0 bg-white w-full text-sm shadow-sm border border-gray-200 rounded-lg z-9 max-h-40 overflow-y-auto dark:bg-gray-900 dark:border-gray-700">
                                             {filteredLanguages.length > 0 ?
                                                 filteredLanguages?.map(lang => (
-                                                    <li className="py-2 px-4 hover:bg-teal hover:text-white cursor-pointer" onMouseDown={() => handleLanguage({type : true, value : lang})} key={lang}>{lang}</li>
-                                                )) : <li className="text-center text-sm text-gray-500 py-2 px-4">No options</li>
+                                                    <li className="py-2 px-4 hover:bg-teal hover:text-white cursor-pointer dark:text-gray-300" onMouseDown={() => handleLanguage({type : true, value : lang})} key={lang}>{lang}</li>
+                                                )) : <li className="text-center text-sm text-gray-500 py-2 px-4 dark:text-gray-300">No options</li>
                                             }
                                         </ul>
                                     }
@@ -704,7 +704,7 @@ function Profile() {
                                 {errors?.official_email && <p className="text-xs text-red-600 mt-1">{errors?.official_email}</p>}
                             </div>
                             <div className="col-span-1 lg:col-span-3">
-                                <h4 className="text-2xl mt-4 text-gray-700 font-semibold mb-0">Address of current residence</h4>
+                                <h4 className="text-xl mt-4 text-gray-700 font-semibold mb-0 dark:text-white/90">Address of current residence</h4>
                             </div>
                             <LocationFields
                                 data={data}
@@ -731,21 +731,8 @@ function Profile() {
                                 </div>
                                 {errors?.pincode && <p className="text-xs text-red-600 mt-1">{errors?.pincode}</p>}
                             </div>
-                            <div className="form-group lg:col-span-2">
-                                <label htmlFor="address1" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Locality/Area</label>
-                                <div className="relative mt-1">
-                                    <input type="text" name="address1" id="address1" className={`peer text-sm w-full pr-3 py-3 pl-10 border-1 ${errors?.address1 ? "border-red-600" : "border-gray-300"} rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`} placeholder="House No. ( Colony Name )" value={data?.address1} onChange={(e) => dispatch(e)} />
-                                    <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 512 512" style={{ enableBackground: "new 0 0 512 512" }} xmlSpace="preserve" width="21" height="19" className={`${errors?.address1 ? "text-red-600" : "text-gray-300"} absolute top-1/2 left-3 -translate-y-1/2 peer-focus:text-teal dark:text-gray-600`}>
-                                        <g id="_01_align_center">
-                                            <path d="M255.104,512.171l-14.871-12.747C219.732,482.258,40.725,327.661,40.725,214.577c0-118.398,95.981-214.379,214.379-214.379   s214.379,95.981,214.379,214.379c0,113.085-179.007,267.682-199.423,284.932L255.104,512.171z M255.104,46.553   c-92.753,0.105-167.918,75.27-168.023,168.023c0,71.042,110.132,184.53,168.023,236.473   c57.892-51.964,168.023-165.517,168.023-236.473C423.022,121.823,347.858,46.659,255.104,46.553z" fill="currentColor" />
-                                            <path d="M255.104,299.555c-46.932,0-84.978-38.046-84.978-84.978s38.046-84.978,84.978-84.978s84.978,38.046,84.978,84.978   S302.037,299.555,255.104,299.555z M255.104,172.087c-23.466,0-42.489,19.023-42.489,42.489s19.023,42.489,42.489,42.489   s42.489-19.023,42.489-42.489S278.571,172.087,255.104,172.087z" fill="currentColor" />
-                                        </g>
-                                    </svg>
-                                </div>
-                                {errors?.address1 && <p className="text-xs text-red-600 mt-1">{errors?.address1}</p>}
-                            </div>
                             <div className="col-span-1 lg:col-span-3">
-                                <h4 className="text-2xl mt-4 text-gray-700 font-semibold mb-0">Professional Details</h4>
+                                <h4 className="text-xl mt-4 text-gray-700 font-semibold mb-0 dark:text-white/90">Professional Details</h4>
                             </div>
                             <div className="form-group">
                                 <label htmlFor="degreeValues" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Degree</label>
@@ -761,11 +748,11 @@ function Profile() {
                                         <input type="text" className="w-full min-w-5 flex-1 border-0 outline-none text-sm" placeholder="Select..." value={degreeSearch} id="degreeValues" onChange={(e) => setDegreeSearch(e.target.value)} onFocus={() => setDegreeOpen(true)} onBlur={() => setDegreeOpen(false)} />
                                     </div>
                                     {degreeOpen &&
-                                        <ul className="absolute top-full left-0 bg-white w-full text-sm shadow-sm border border-gray-200 rounded-lg z-9 max-h-40 overflow-y-auto">
+                                        <ul className="absolute top-full left-0 bg-white w-full text-sm shadow-sm border border-gray-200 rounded-lg z-9 max-h-40 overflow-y-auto dark:bg-gray-900 dark:border-gray-700">
                                             {filteredDegree.length > 0 ?
                                                 filteredDegree?.map(degree => (
-                                                    <li className="py-2 px-4 hover:bg-teal hover:text-white cursor-pointer" onMouseDown={() => handleDegree({type : true, value : degree})} key={degree}>{degree}</li>
-                                                )) : <li className="text-center text-sm text-gray-500 py-2 px-4">No options</li>
+                                                    <li className="py-2 px-4 hover:bg-teal hover:text-white cursor-pointer dark:text-gray-300" onMouseDown={() => handleDegree({type : true, value : degree})} key={degree}>{degree}</li>
+                                                )) : <li className="text-center text-sm text-gray-500 py-2 px-4 dark:text-gray-300">No options</li>
                                             }
                                         </ul>
                                     }
@@ -775,7 +762,7 @@ function Profile() {
                                 data?.degreeValues?.map((deg, index) => (
                                     <div className="col-span-3" key={index}>
                                         <div className="text-sm font-semibol text-white bg-teal w-max pl-4 gap-2 py-[0.5px] pr-[0.5px] flex">{index+1}. {deg?.degree} <button className="bg-white text-gray-900 font-bold px-1 cursor-pointer" type="button" onClick={() => handleDegree({type : false, value : deg?.degree})}>X</button></div>
-                                        <div className="grid grid-cols-4 gap-2 border border-gray-200 p-3 mb-2">
+                                        <div className="grid grid-cols-4 gap-2 border border-gray-200 p-3 mb-2 dark:border-gray-700">
                                             <div className="form-group">
                                                 <label htmlFor="college" className="text-gray-700 text-sm font-semibold dark:text-gray-400">College</label>
                                                 <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg mt-1 appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="College" value={deg.college} onChange={(e) => handleDegreeValueChange(deg.degree, "college", e.target.value)} />
@@ -798,14 +785,14 @@ function Profile() {
                                 <div className="col-span-2"></div>
                             }
                             <div className="col-span-full">
-                                <h4 className="text-gray-700 text-sm font-semibold dark:text-gray-400">Registration No. (SMC/NMC/MCI)</h4>
+                                <h4 className="text-xl mt-4 text-gray-700 font-semibold mb-0 dark:text-white/90">Registration No. (SMC/NMC/MCI)</h4>
                             </div>
                             <div className="form-group">
                                 <label htmlFor="registration_no" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Registration No.</label>
-                                <input type="number" name="registration_no" id="registration_no" value={data?.registration_no} className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none mt-1 focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Registration Number" onChange={(e) => dispatch(e)} />
+                                <input type="number" name="registration_no" id="registration_no" value={data?.registration_no} className="text-sm w-full p-3 border-1 border-gray-300 rounded-lg appearance-none mt-1 focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Registration Number" onChange={(e) => dispatch(e)} />
                             </div>
                             <div className="form-group">
-                                <label htmlFor="registration_name" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Name of SMC/NMC/MCI</label>
+                                <label htmlFor="registration_name" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Name of medical council (SMC/NMC/MCI)</label>
                                 <input type="text" name="registration_name" id="registration_name" value={data?.registration_name} className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none mt-1 focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Name of Council" onChange={(e) => dispatch(e)} />
                             </div>
                             <div className="form-group">
@@ -833,9 +820,9 @@ function Profile() {
                                                 }
                                             },
                                         }}
-                                        className={`text-sm border-1 ${errors?.dob ? "border-red-600" : "border-gray-300"} p-3 rounded-lg outline-none w-full focus:outline-none focus:border-teal`}
+                                        className={`text-sm border-1 ${errors?.dob ? "border-red-600" : "border-gray-300"} p-3 rounded-lg outline-none w-full focus:outline-none focus:border-teal dark:text-gray-300 dark:border-gray-600`}
                                     />
-                                    <span className="absolute bg-white text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
+                                    <span className="absolute bg-white text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400 dark:bg-transparent">
                                         <svg className="size-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" ><path fillRule="evenodd" clipRule="evenodd" d="M8 2C8.41421 2 8.75 2.33579 8.75 2.75V3.75H15.25V2.75C15.25 2.33579 15.5858 2 16 2C16.4142 2 16.75 2.33579 16.75 2.75V3.75H18.5C19.7426 3.75 20.75 4.75736 20.75 6V9V19C20.75 20.2426 19.7426 21.25 18.5 21.25H5.5C4.25736 21.25 3.25 20.2426 3.25 19V9V6C3.25 4.75736 4.25736 3.75 5.5 3.75H7.25V2.75C7.25 2.33579 7.58579 2 8 2ZM8 5.25H5.5C5.08579 5.25 4.75 5.58579 4.75 6V8.25H19.25V6C19.25 5.58579 18.9142 5.25 18.5 5.25H16H8ZM19.25 9.75H4.75V19C4.75 19.4142 5.08579 19.75 5.5 19.75H18.5C18.9142 19.75 19.25 19.4142 19.25 19V9.75Z" fill="currentColor"></path></svg>
                                     </span>
                                 </div>
@@ -843,7 +830,7 @@ function Profile() {
                             </div>
                             <div className="form-group">
                                 <label htmlFor="registration_valid" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Registration Valid up to</label>
-                                <input type="number" name="registration_valid" id="registration_valid" value={data?.registration_valid} className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none mt-1 focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Validity of registration" onChange={(e) => dispatch(e)} />
+                                <input type="number" name="registration_valid" id="registration_valid" value={data?.registration_valid} className="text-sm w-full p-3 border-1 border-gray-300 rounded-lg appearance-none mt-1 focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Validity of registration" onChange={(e) => dispatch(e)} />
                             </div>
                             <div className="form-group">
                                 <label htmlFor="registration_country" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Registration Country</label>
@@ -854,22 +841,22 @@ function Profile() {
                                 <input type="file" name="registration_certificate" id="registration_certificate" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none mt-1 focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" onChange={(e) => handleFileChange(e)} />
                             </div>
                             <div className="form-group col-span-3">
-                                <label htmlFor="solo" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Employed / Solo Pracititions</label>
+                                <label htmlFor="solo" className="text-xl mt-4 text-gray-700 font-semibold mb-0 dark:text-white/90">Employed / Solo Pracititions</label>
                                <div className="flex gap-3 mt-3">
-                                    <label htmlFor="solo" className="flex items-center gap-2 text-base font-semibold text-gray-700 cursor-pointer">
+                                    <label htmlFor="solo" className="flex items-center gap-2 text-base font-semibold text-gray-700 cursor-pointer dark:text-gray-400">
                                         Solo 
                                         <span className="relative content-center -mb-2">
                                             <input type="radio" className="sr-only" name="practice" value="solo" id="solo" checked={data?.practice==="solo"} onChange={(e) => dispatch(e)} />
-                                            <span className={`w-5 h-5 border border-gray-300 rounded-full flex justify-center items-center -mt-2 ${data?.practice==="solo" ? "bg-teal" : ""}`}>
+                                            <span className={`w-5 h-5 border border-gray-300 rounded-full flex justify-center items-center -mt-2 dark:border-gray-600 ${data?.practice==="solo" ? "bg-teal" : ""}`}>
                                                 <span className="bg-white w-2 h-2 rounded-full inline-block"></span>
                                             </span>
                                         </span>
                                     </label>
-                                    <label htmlFor="employed" className="flex items-center gap-2 text-base font-semibold text-gray-700 cursor-pointer">
+                                    <label htmlFor="employed" className="flex items-center gap-2 text-base font-semibold text-gray-700 cursor-pointer dark:text-gray-400">
                                         Employed
                                         <span className="relative content-center -mb-2">
                                             <input type="radio" className="sr-only" name="practice" value="employed" id="employed" checked={data?.practice==="employed"} onChange={(e) => dispatch(e)} />
-                                            <span className={`w-5 h-5 border border-gray-300 rounded-full flex justify-center items-center -mt-2 ${data?.practice==="employed" ? "bg-teal" : ""}`}>
+                                            <span className={`w-5 h-5 border border-gray-300 rounded-full flex justify-center items-center -mt-2 dark:border-gray-600 ${data?.practice==="employed" ? "bg-teal" : ""}`}>
                                                 <span className="bg-white w-2 h-2 rounded-full inline-block"></span>
                                             </span>
                                         </span>
@@ -880,11 +867,11 @@ function Profile() {
                             {data?.practice == "solo" ? 
                                 <>
                                     <div className="form-group">
-                                        <label htmlFor="medical_name" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Medical Name</label>
-                                        <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none mt-1 focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Medical name" value={data?.medical_name} name="medical_name" id="medical_name" onChange={(e) => dispatch(e)} />
+                                        <label htmlFor="clinic_name" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Clinic Name</label>
+                                        <input type="text" className="text-sm w-full p-3 pr-8 border-1 border-gray-300 rounded-lg appearance-none mt-1 focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Clinic name" value={data?.clinic_name} name="clinic_name" id="clinic_name" onChange={(e) => dispatch(e)} />
                                     </div>
                                     <LocationFields
-                                        prefix="medical"
+                                        prefix="clinic"
                                         data={data}
                                         countries={countries}
                                         statesByCountry={statesByCountry}
@@ -897,8 +884,8 @@ function Profile() {
                                         }}
                                     />
                                     <div className="form-group">
-                                        <label htmlFor="medical_pincode" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Pincode</label>
-                                        <input type="number" className="text-sm w-full p-3 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal mt-1 placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Pincode" name="medical_pincode" id="medical_pincode" value={data?.medical_pincode} onChange={(e) => dispatch(e)} />
+                                        <label htmlFor="clinic_pincode" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Pincode</label>
+                                        <input type="number" className="text-sm w-full p-3 border-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal mt-1 placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Pincode" name="clinic_pincode" id="clinic_pincode" value={data?.clinic_pincode} onChange={(e) => dispatch(e)} />
                                     </div>
                                     <div className="form-group"></div>
                                 </> : 
@@ -934,6 +921,9 @@ function Profile() {
                                     </div>
                                 </>
                             }
+                            <div className="col-span-full">
+                                <h4 className="text-xl mt-4 text-gray-700 font-semibold mb-0 dark:text-white/90">Awards and experiences</h4>
+                            </div>
                             <div className="form-group">
                                 <label htmlFor="interest" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Area of interest</label>
                                 <div className={`flex flex-wrap gap-1 min-h-11 text-sm w-full p-3 mt-1 border-1 ${errors?.interest ? "border-red-600" : "border-gray-300"} rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`}>
@@ -959,21 +949,21 @@ function Profile() {
                             </div>
                             <div className="form-group">
                                 <label htmlFor="experience" className="text-gray-700 text-sm font-semibold dark:text-gray-400">Year's of experience</label>
-                                <input type="number" className="text-sm w-full p-3 pr-8 border-1 mt-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Year's of experience" name="experience" id="experience" value={data?.experience} onChange={(e) => dispatch(e)} />
+                                <input type="number" className="text-sm w-full p-3 border-1 mt-1 border-gray-300 rounded-lg appearance-none focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300" placeholder="Year's of experience" name="experience" id="experience" value={data?.experience} onChange={(e) => dispatch(e)} />
                             </div>
                             <div className="form-group col-span-3 my-2">
                                 <div className="flex gap-2">
                                     <div className="relative h-[20px]">
-                                        <input type="checkbox" id="confirm" name="confirm" className="w-5 h-5 appearance-none cursor-pointer border border-gray-300 checked:border-transparent rounded-md dark:border-gray-600 checked:bg-teal disabled:opacity-60 " value={data?.confirm} onChange={(e) => dispatch(e)} />
+                                        <input type="checkbox" id="confirm" name="confirm" className="w-5 h-5 appearance-none cursor-pointer border border-gray-300 checked:border-transparent rounded-md dark:border-gray-600 checked:bg-teal disabled:opacity-60 " checked={data?.confirm} onChange={(e) => dispatch({target:{name : "confirm", value : e.target.checked}})} />
                                         {data?.confirm &&
                                             <svg className="absolute transform -translate-x-1/2 -translate-y-1/2 pointer-events-none top-1/2 left-1/2" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M11.6666 3.5L5.24992 9.91667L2.33325 7" stroke="white" strokeWidth="1.94437" strokeLinecap="round" strokeLinejoin="round"></path></svg>
                                         }
                                     </div>
-                                    <label htmlFor="confirm" className="text-sm text-gray-700 font-semibold cursor-pointer">I aggree to terms & conditions and Privacy policy</label>
+                                    <label htmlFor="confirm" className="text-sm text-gray-700 font-semibold cursor-pointer dark:text-gray-400">I aggree to <Link to="/" className="text-[#00a598]">terms & conditions</Link> and <Link to="/" className="text-[#00a598]">Privacy policy</Link></label>
                                 </div>
                             </div>
                         </div>
-                        <button className={`text-center px-10 py-3 flex items-center gap-0 bg-teal w-max text-white rounded-xl mt-4 ${loading ? "opacity-80 cursor-not-allowed" : "cursor-pointer hover:bg-teal-dark"} mt-3`} disabled={loading}>
+                        <button className={`text-center px-10 py-3 flex items-center gap-0 bg-teal w-max text-white rounded-xl mt-4 ${(loading || !data?.confirm) ? "opacity-80 cursor-not-allowed" : "cursor-pointer hover:bg-teal-dark"} mt-3`} disabled={(loading || data?.confirm) ? true : false}>
                             {loading ?
                                 <>
                                     <svg aria-hidden="true" role="status" className="w-4 h-4 me-2 text-white animate-spin" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -989,21 +979,21 @@ function Profile() {
                         }
                     </form>
                 </div>
-                <div className="p-5 bg-white border border-gray-200 rounded-2xl ">
-                    <h4 className="text-base font-semibold text-gray-700 mb-5">Update Password</h4>
-                    <button className="text-base font-semibold text-gray-600 bg-gray-100 flex items-center gap-2 px-6 py-3 rounded-full cursor-pointer hover:bg-gray-200 hover:text-gray-700" onClick={() => setEditPass(true)}>
+                <div className="p-5 bg-white border border-gray-200 rounded-2xl dark:bg-transparent dark:border-gray-800">
+                    <h4 className="text-base font-semibold text-gray-700 mb-5 dark:text-gray-300">Update Password</h4>
+                    <button className="text-base font-semibold text-gray-600 bg-gray-100 flex items-center gap-2 px-6 py-3 rounded-full cursor-pointer hover:bg-gray-200 hover:text-gray-700 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-300" onClick={() => setEditPass(true)}>
                         <svg className="w-5 h-5 fill-current" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" clipRule="evenodd" d="M15.0911 2.78206C14.2125 1.90338 12.7878 1.90338 11.9092 2.78206L4.57524 10.116C4.26682 10.4244 4.0547 10.8158 3.96468 11.2426L3.31231 14.3352C3.25997 14.5833 3.33653 14.841 3.51583 15.0203C3.69512 15.1996 3.95286 15.2761 4.20096 15.2238L7.29355 14.5714C7.72031 14.4814 8.11172 14.2693 8.42013 13.9609L15.7541 6.62695C16.6327 5.74827 16.6327 4.32365 15.7541 3.44497L15.0911 2.78206ZM12.9698 3.84272C13.2627 3.54982 13.7376 3.54982 14.0305 3.84272L14.6934 4.50563C14.9863 4.79852 14.9863 5.2734 14.6934 5.56629L14.044 6.21573L12.3204 4.49215L12.9698 3.84272ZM11.2597 5.55281L5.6359 11.1766C5.53309 11.2794 5.46238 11.4099 5.43238 11.5522L5.01758 13.5185L6.98394 13.1037C7.1262 13.0737 7.25666 13.003 7.35947 12.9002L12.9833 7.27639L11.2597 5.55281Z" fill="currentColor"></path></svg>
                         Edit Password
                     </button>
                     {editPass &&
                         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 backdrop-blur-[2px]" onClick={() => setEditPass(false)}>
-                            <div className="bg-white border border-gray-200 shadow-xs p-8 px-10 w-1/2 rounded-3xl" onClick={(e) => e.stopPropagation()}>
+                            <div className="bg-white border border-gray-200 shadow-xs p-8 px-10 w-1/2 rounded-3xl dark:bg-gray-800 dark:border-gray-700" onClick={(e) => e.stopPropagation()}>
                                 <div className="flex justify-between items-start mb-5">
                                     <div>
-                                        <h3 className="text-2xl font-semibold mb-2">Update your password</h3>
+                                        <h3 className="text-2xl font-semibold mb-2 dark:text-gray-300">Update your password</h3>
                                         <p className="text-sm font-semibold text-gray-500">For security reasons, please enter your current password and a new password.</p>
                                     </div>
-                                    <button className="w-12 h-12 rounded-full bg-gray-100 text-gray-500 content-center cursor-pointer hover:bg-gray-200"
+                                    <button className="w-12 h-12 rounded-full bg-gray-100 text-gray-500 content-center cursor-pointer hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-900"
                                         onClick={() => { setEditPass(false); }}
                                     >
                                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 mx-auto"><path fillRule="evenodd" clipRule="evenodd" d="M6.04289 16.5413C5.65237 16.9318 5.65237 17.565 6.04289 17.9555C6.43342 18.346 7.06658 18.346 7.45711 17.9555L11.9987 13.4139L16.5408 17.956C16.9313 18.3466 17.5645 18.3466 17.955 17.956C18.3455 17.5655 18.3455 16.9323 17.955 16.5418L13.4129 11.9997L17.955 7.4576C18.3455 7.06707 18.3455 6.43391 17.955 6.04338C17.5645 5.65286 16.9313 5.65286 16.5408 6.04338L11.9987 10.5855L7.45711 6.0439C7.06658 5.65338 6.43342 5.65338 6.04289 6.0439C5.65237 6.43442 5.65237 7.06759 6.04289 7.45811L10.5845 11.9997L6.04289 16.5413Z" fill="currentColor"></path></svg>

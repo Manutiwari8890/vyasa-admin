@@ -45,7 +45,7 @@ export function CountrySelect({value, onChange, name, error}){
                 className={`peer text-sm w-full pr-4 py-3 pl-4 border-1 ${error ? "border-red-600" : "border-gray-300"}  rounded-lg focus:outline-none focus:border-teal placeholder:text-gray-400 dark:border-gray-600 dark:text-gray-300`}
             />
             {open &&
-                <ul className="absolute w-full bg-white shadow-sm border border-gray-200 max-h-40 overflow-y-auto rounded-lg z-9">
+                <ul className="absolute w-full bg-white shadow-sm border border-gray-200 max-h-40 overflow-y-auto rounded-lg z-9 dark:bg-gray-900 dark:border-gray-700">
                     {filtered.map((c, i) => (
                     <li
                         key={i}
@@ -54,7 +54,7 @@ export function CountrySelect({value, onChange, name, error}){
                             setSearch(c);
                             setOpen(false);
                         }}
-                        className="px-3 py-2 text-sm text-gray-700 hover:bg-teal hover:text-white cursor-pointer"
+                        className="px-3 py-2 text-sm text-gray-700 hover:bg-teal hover:text-white cursor-pointer dark:text-gray-300"
                     >
                         {c}
                     </li>
